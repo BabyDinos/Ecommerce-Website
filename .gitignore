@@ -8,3 +8,8 @@ erl_crash.dump
 *.beam
 /config/*.secret.exs
 .elixir_ls/
+/ecommercewebsite/config
+/ecommercewebsite/assets
+/ecommercewebsite/deps
+/ecommercewebsite/priv
+
