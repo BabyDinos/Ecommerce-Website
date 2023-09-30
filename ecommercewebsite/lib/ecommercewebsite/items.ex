@@ -13,7 +13,7 @@ defmodule Ecommercewebsite.Items do
   end
 
   @doc false
-  def changeset(changeset, attrs) do
+  def changeset(changeset, attrs \\ %{}) do
     changeset
     |> cast(attrs, [:item_name, :description, :price, :quantity, :img_file_name])
     |> validate_required([:item_name, :description, :price, :quantity, :img_file_name])
@@ -31,8 +31,8 @@ defmodule Ecommercewebsite.Items do
 
   def validate_description(changeset) do
     changeset
-    |> validate_requirred([:description])
-    |> validate_length(:description, min:0, max: 300)
+    |> validate_required([:description])
+    |> validate_length(:description, min: 0, max: 300)
   end
 
   def validate_price(changeset) do
@@ -47,7 +47,7 @@ defmodule Ecommercewebsite.Items do
   end
 
   def validate_quantity(changeset) do
-    quantity = get_fieldd(changeset, :quantity)
+    quantity = get_field(changeset, :quantity)
 
     if quantity >= 0 and quantity <= 999999999 do
       changeset

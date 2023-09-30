@@ -1,17 +1,58 @@
 <!DOCTYPE html>
-<html lang="en" class="[scrollbar-gutter:stable]">
+<html lang="en" class="overflow-x-hidden">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title suffix=" · Phoenix Framework">
+    <.live_title suffix=" · Ecommerce Website">
       <%= assigns[:page_title] || "Ecommercewebsite" %>
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
   </head>
-  <body class="bg-white antialiased">
+  <body class="bg-white">
+    <ul class="relative z-10 flex items-center gap-4 justify-end text-center bg-blue-300 pb-4 pt-4 pr-4">
+      <%= if @current_user do %>
+        <li class="font-bold text-blue">
+          <%= @current_user.email %>
+        </li>
+        <li>
+          <.link
+            href={~p"/users/settings"}
+            class="font-bold text-white bg-gray-950 flex justify-center items-center p-4 w-24 h-10 rounded-lg"
+          >
+            Settings
+          </.link>
+        </li>
+        <li>
+          <.link
+            href={~p"/users/log_out"}
+            method="delete"
+            class="font-bold text-black bg-white border border-black flex justify-center items-center p-4 w-24 h-10 rounded-lg"
+          >
+            Log out
+          </.link>
+        </li>
+      <% else %>
+        <li>
+          <.link
+            href={~p"/users/register"}
+            class="font-bold text-white bg-gray-950 flex justify-center items-center p-4 w-24 h-10 rounded-lg"
+          >
+            Register
+          </.link>
+        </li>
+        <li>
+          <.link
+            href={~p"/users/log_in"}
+            class="font-bold text-black bg-white border border-black flex justify-center items-center p-4 w-24 h-10 rounded-lg"
+          >
+            Log in
+          </.link>
+        </li>
+      <% end %>
+    </ul>
     <%= @inner_content %>
   </body>
 </html>
