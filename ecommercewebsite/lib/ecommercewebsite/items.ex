@@ -9,7 +9,6 @@ defmodule Ecommercewebsite.Items do
     field :quantity, :integer
     field :img_file_name, :string
 
-    timestamps()
   end
 
   @doc false
@@ -26,35 +25,23 @@ defmodule Ecommercewebsite.Items do
   def validate_item_name(changeset) do
     changeset
     |> validate_required([:item_name])
-    |> validate_length(:item_name, min: 1, max: 100)
+    |> validate_length(:item_name, min: 1, max: 100, message: "Must have a name")
   end
 
   def validate_description(changeset) do
     changeset
     |> validate_required([:description])
-    |> validate_length(:description, min: 0, max: 300)
+    |> validate_length(:description, min: 1, max: 300, message: "Must have a description")
   end
 
   def validate_price(changeset) do
-    price = get_field(changeset, :price)
-
-    if price >= 0 and price <= 999 do
-      changeset
-    else
-      add_error(changeset, :age, "must be between 0 and 999")
-    end
-
+    changeset
+    |> validate_number(:price, greater_than_or_equal_to: 0, less_than_or_equal_to: 900, message: "Price must be in between 0 and 900")
   end
 
   def validate_quantity(changeset) do
-    quantity = get_field(changeset, :quantity)
-
-    if quantity >= 0 and quantity <= 999999999 do
-      changeset
-    else
-      add_error(changeset, :quantity, "must be between 0 and 999999999")
-    end
-
+    changeset
+    |> validate_number(:quantity, greater_than_or_equal_to: 1, less_than_or_equal_to: 9999, message: "Price must be in between 1 and 9999")
   end
 
 end

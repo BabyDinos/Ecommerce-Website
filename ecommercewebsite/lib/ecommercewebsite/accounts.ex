@@ -6,7 +6,8 @@ defmodule Ecommercewebsite.Accounts do
   import Ecto.Query, warn: false
   alias Ecommercewebsite.Repo
 
-  alias Ecommercewebsite.Accounts.{User, UserToken, UserNotifier}
+  alias Ecommercewebsite.Accounts.{User, UserToken, UserNotifier, UserInfo}
+
 
   ## Database getters
 
@@ -74,12 +75,19 @@ defmodule Ecommercewebsite.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def register_user(attrs) do
-    %User{}
-    |> User.registration_changeset(attrs)
-    |> Repo.insert()
+  def register_user(user, userinfo) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:user, User.registration_changeset(%User{}, user))
+    |> Ecto.Multi.run(:user_info, fn _repo, %{user: user} ->
+      user_id = user.id
+      changeset = UserInfo.changeset(%UserInfo{}, Map.put(userinfo, "user_id", user_id))
+      case Repo.insert(changeset) do
+        {:ok, user_info} -> {:ok, %{"user" => user,"user_info"=> user_info}}
+        {:error, changeset} -> {:error, %{"user" => user,"user_info"=> changeset}}
+      end
+    end)
+    |> Repo.transaction()
   end
-
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 

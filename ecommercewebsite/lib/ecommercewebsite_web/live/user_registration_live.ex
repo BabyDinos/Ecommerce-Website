@@ -3,11 +3,12 @@ defmodule EcommercewebsiteWeb.UserRegistrationLive do
 
   alias Ecommercewebsite.Accounts
   alias Ecommercewebsite.Accounts.User
+  alias Ecommercewebsite.Accounts.UserInfo
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">
+    <div class="mx-auto max-w-sm flex flex-col items-center">
+      <.header class="text-center mt-5 align-middle">
         Register for an account
         <:subtitle>
           Already registered?
@@ -18,44 +19,85 @@ defmodule EcommercewebsiteWeb.UserRegistrationLive do
         </:subtitle>
       </.header>
 
-      <.simple_form
-        for={@form}
-        id="registration_form"
-        phx-submit="save"
-        phx-change="validate"
-        phx-trigger-action={@trigger_submit}
-        action={~p"/users/log_in?_action=registered"}
-        method="post"
-      >
-        <.error :if={@check_errors}>
-          Oops, something went wrong! Please check the errors below.
-        </.error>
+      <%= if @first_step == true do %>
+        <.simple_form
+          for={@form1}
+          id="username_form"
+          phx-change="validate_username"
+          phx-submit="save"
+          class = "pt-3 pb-10 pl-5 pr-5 m-0 mt-5 align-middle justify-center min-w-full border border-black"
+        >
+          <.input field={@form1[:username]} type="text" label="Username" required />
+          <.input field={@form1[:shop_title]} type="text" label="Shop Title" required />
 
-        <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:password]} type="password" label="Password" required />
+          <.button phx-disable-with="Continue">Continue</.button>
+        </.simple_form>
 
-        <:actions>
-          <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
-        </:actions>
-      </.simple_form>
+      <% else %>
+        <.simple_form
+          for={@form2}
+          id="registration_form"
+          phx-submit="submit"
+          phx-change="validate_registration"
+          phx-trigger-action={@trigger_submit}
+          action={~p"/users/log_in?_action=registered"}
+          method="post"
+          class = "pt-3 pb-10 pl-5 pr-5 m-0 mt-5 align-middle justify-center min-w-full border border-black"
+        >
+          <.error :if={@check_errors}>
+            Oops, something went wrong! Please check the errors below.
+          </.error>
+
+          <.input field={@form2[:email]} type="email" label="Email" required />
+          <.input field={@form2[:password]} type="password" label="Password" required />
+
+          <:actions>
+            <.button phx-disable-with="Create Account...">Create Account</.button>
+          </:actions>
+        </.simple_form>
+      <% end %>
     </div>
     """
   end
 
   def mount(_params, _session, socket) do
-    changeset = Accounts.change_user_registration(%User{})
+    username_changeset = UserInfo.changeset(%UserInfo{}, %{}, [validate_username: true, validate_shop_title: true])
+    user_changeset = Accounts.change_user_registration(%User{})
 
     socket =
       socket
+      |> assign(:first_step, true)
       |> assign(trigger_submit: false, check_errors: false)
-      |> assign_form(changeset)
+      |> assign_username_form(username_changeset)
+      |> assign_register_form(user_changeset)
 
     {:ok, socket, temporary_assigns: [form: nil]}
   end
 
-  def handle_event("save", %{"user" => user_params}, socket) do
-    case Accounts.register_user(user_params) do
-      {:ok, user} ->
+  def handle_event("validate_username", %{"userinfo" => user_params}, socket) do
+    changeset = UserInfo.changeset(%UserInfo{}, user_params, [validate_username: true, validate_shop_title: true])
+    {:noreply, assign_username_form(socket, Map.put(changeset, :action, :validate))}
+  end
+
+  def handle_event("save", %{"userinfo" => user_params}, socket) do
+    socket =
+      socket
+      |> assign(form1_data: user_params)
+      |> assign(:first_step, false)
+    {:noreply, socket}
+  end
+
+  def handle_event("validate_registration", %{"user" => user_params}, socket) do
+    changeset = Accounts.change_user_registration(%User{}, user_params)
+    {:noreply, assign_register_form(socket, Map.put(changeset, :action, :validate))}
+  end
+
+  def handle_event("submit", %{"user" => user}, socket) do
+
+    user_info = socket.assigns.form1_data
+
+    case Accounts.register_user(user, user_info) do
+      {:ok, %{user: user, user_info: _user_info}} ->
         {:ok, _} =
           Accounts.deliver_user_confirmation_instructions(
             user,
@@ -63,25 +105,31 @@ defmodule EcommercewebsiteWeb.UserRegistrationLive do
           )
 
         changeset = Accounts.change_user_registration(user)
-        {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
+        {:noreply, socket |> assign(trigger_submit: true) |> assign_register_form(changeset)}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
+      {:error, %{user: user, user_info: _user_info}} ->
+        changeset = Accounts.change_user_registration(user)
+        {:noreply, socket |> assign(check_errors: true) |> assign_register_form(changeset)}
     end
   end
 
-  def handle_event("validate", %{"user" => user_params}, socket) do
-    changeset = Accounts.change_user_registration(%User{}, user_params)
-    {:noreply, assign_form(socket, Map.put(changeset, :action, :validate))}
+  defp assign_username_form(socket, %Ecto.Changeset{} = changeset) do
+    form = to_form(changeset, as: "userinfo")
+
+    if changeset.valid? do
+      assign(socket, form1: form, check_errors: false)
+    else
+      assign(socket, form1: form)
+    end
   end
 
-  defp assign_form(socket, %Ecto.Changeset{} = changeset) do
+  defp assign_register_form(socket, %Ecto.Changeset{} = changeset) do
     form = to_form(changeset, as: "user")
 
     if changeset.valid? do
-      assign(socket, form: form, check_errors: false)
+      assign(socket, form2: form, check_errors: false)
     else
-      assign(socket, form: form)
+      assign(socket, form2: form)
     end
   end
 end

@@ -24,6 +24,11 @@ defmodule EcommercewebsiteWeb.Endpoint do
     gzip: false,
     only: EcommercewebsiteWeb.static_paths()
 
+  plug Plug.Static,
+    at: "/uploads",       # The URL path where images will be served
+    from: "./uploads", # The file system path to the directory
+    gzip: false
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
