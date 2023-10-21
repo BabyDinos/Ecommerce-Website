@@ -8,13 +8,13 @@ defmodule Ecommercewebsite.Items do
     field :price, :float
     field :quantity, :integer
     field :img_file_name, :string
-
+    belongs_to :userinfo, Ecommercewebsite.Accounts.UserInfo, foreign_key: :shop_id
   end
 
   @doc false
   def changeset(changeset, attrs \\ %{}) do
     changeset
-    |> cast(attrs, [:item_name, :description, :price, :quantity, :img_file_name])
+    |> cast(attrs, [:item_name, :description, :price, :quantity, :img_file_name, :shop_id])
     |> validate_required([:item_name, :description, :price, :quantity, :img_file_name])
     |> validate_item_name()
     |> validate_description()

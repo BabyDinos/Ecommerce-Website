@@ -11,6 +11,14 @@ defmodule Ecommercewebsite.Accounts do
 
   ## Database getters
 
+  def get_userinfo_by_username(username) do
+    if userinfo = Repo.get_by(UserInfo, username: username) do
+      userinfo
+    else
+      nil
+    end
+  end
+
   @doc """
   Gets a user by email.
 

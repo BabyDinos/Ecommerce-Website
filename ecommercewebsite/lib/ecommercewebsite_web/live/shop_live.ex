@@ -3,6 +3,7 @@ defmodule EcommercewebsiteWeb.ShopLive do
 
   alias Ecommercewebsite.Items
   alias Ecommercewebsite.Shop
+  alias Ecommercewebsite.Accounts
 
   def render(assigns) do
     ~H"""
@@ -13,10 +14,10 @@ defmodule EcommercewebsiteWeb.ShopLive do
         <div class = "w-full h-2/5 flex justify-center bg-[url('/images/home-background.jpg')] bg-auto bg-center bg-no-repeat">
           <div class = "w-4/5 justify-center">
             <h1 class = "text-white font-semibold text-8xl text-center mt-64">
-            My Store
+            <%= @shop_title %>
             </h1>
             <h2 class = "p-20 font-medium text-6xl text-white">
-            Welcome to my store!
+            <%= @shop_description %>
             </h2>
           </div>
         </div>
@@ -26,24 +27,25 @@ defmodule EcommercewebsiteWeb.ShopLive do
           </h1>
         </div>
         <div class = "w-2/5 h-1/8 flex mx-auto items-start justify-center">
-          <.button type="button" phx-click={show_modal("upload-form")} class = "w-2/6 h-1/6 font-medium text-6xl">Upload New Item</.button>
-
-            <.modal id = "upload-form" >
-              <.form for={@upload_form} phx-change= "validate_new_item" phx-submit="upload_new_item"
-                class = "mt-[5%] ml-[5%] font-medium text-6xl w-3/5" enctype="multipart/form-data">
-                <.input field={@upload_form[:item_name]} value = {@item_name} placeholder = {@item_name} type="text" label="Item Name" required />
-                <.input field={@upload_form[:description]}  value = {@description} placeholder = {@description} type="textarea" label="Description" required />
-                <.input field={@upload_form[:price]} value = {@price} placeholder = {@price} type="number" label="Price" required />
-                <.input field={@upload_form[:quantity]} value = {@quantity} placeholder = {@quantity} type="number" label="Quantity" required />
-                <.live_file_input upload={@uploads.image} required class = "w-full text-xl mb-5"/>
-                <%= for entry <- @uploads.image.entries do %>
-                  <.live_img_preview entry={entry} />
-                <% end %>
-                <div class = "justify-end w-full flex">
-                  <button phx-click={hide_modal("upload-form")} class = "mt-5 text-2xl text-black bg-green-600 p-4 rounded-md">Submit</button>
-                </div>
-              </.form>
-            </.modal>
+          <%= if @edit_mode do %>
+            <.button type="button" phx-click={show_modal("upload-form")} class = "w-2/6 h-1/6 font-medium text-6xl">Upload New Item</.button>
+              <.modal id = "upload-form" >
+                <.form for={@upload_form} phx-change= "validate_new_item" phx-submit="upload_new_item"
+                  class = "mt-[5%] ml-[5%] font-medium text-6xl w-3/5" enctype="multipart/form-data">
+                  <.input field={@upload_form[:item_name]} value = {@item_name} placeholder = {@item_name} type="text" label="Item Name" required />
+                  <.input field={@upload_form[:description]}  value = {@description} placeholder = {@description} type="textarea" label="Description" required />
+                  <.input field={@upload_form[:price]} value = {@price} placeholder = {@price} type="number" label="Price" required />
+                  <.input field={@upload_form[:quantity]} value = {@quantity} placeholder = {@quantity} type="number" label="Quantity" required />
+                  <.live_file_input upload={@uploads.image} required class = "w-full text-xl mb-5"/>
+                  <%= for entry <- @uploads.image.entries do %>
+                    <.live_img_preview entry={entry} />
+                  <% end %>
+                  <div class = "justify-end w-full flex">
+                    <button phx-click={hide_modal("upload-form")} class = "mt-5 text-2xl text-black bg-green-600 p-4 rounded-md">Submit</button>
+                  </div>
+                </.form>
+              </.modal>
+          <% end %>
         </div>
         <div class="m-12 grid grid-cols-3 gap-x-4 items-start justify-center space-y-0 w-full h-1/2">
           <%= for post <- Enum.slice(@posts, (@page_number - 1) * 9, (9)) do %>
@@ -65,7 +67,7 @@ defmodule EcommercewebsiteWeb.ShopLive do
             </div>
           <% end %>
         </div>
-        <div class = "flex items-start justify-center pt-12">
+        <div class = "flex items-start justify-center pt-12 pb-12">
           <button class = "justify-center">
           Left Arrow
           </button>
@@ -80,22 +82,58 @@ defmodule EcommercewebsiteWeb.ShopLive do
     """
     end
 
-    def mount(_params, _session, socket) do
-      IO.inspect(socket.assigns)
-      changeset = Items.changeset(%Items{})
-      socket =
-        reset_socket(socket)
-        |> assign_form(changeset)
-        |> allow_upload(:image, accept: ~w(.png .jpg), max_entries: 1, auto_upload: true)
-      {:ok, socket}
+    def mount(%{"username" => username, "_action" => "edit"}, session, socket) do
+      current_user = socket.assigns.current_user
+      case mount(%{"username" => username}, session, socket) do
+        {:error, socket} ->
+          {:error, socket}
+        {:ok, socket} ->
+          edit_allowed = current_user.id == socket.assigns.userinfo.user_id
+
+          if !edit_allowed do
+            socket =
+              socket
+              |> put_flash(:error, "You do not have permission to edit this shop page")
+            {:ok, socket}
+          else
+            socket =
+              socket
+              |> assign(:edit_mode, true)
+              |> put_flash(:info, "You are now in edit mode")
+            {:ok, socket}
+          end
+      end
     end
 
-    def reset_socket(socket) do
-      posts = Shop.get_items()
+    def mount(%{"username" => username}, _session, socket) do
+      case userinfo = Accounts.get_userinfo_by_username(username) do
+        nil ->
+          socket =
+            socket
+            |> put_flash(:error, "The shop #{username} does not exist")
+            |> push_navigate(to: ~p"/")
+          {:error, socket}
+        _ ->
+          shop_id = userinfo.id
+          changeset = Items.changeset(%Items{})
+          socket =
+            reset_socket(socket, shop_id)
+            |> assign(:edit_mode, false)
+            |> assign(userinfo: userinfo)
+            |> assign(:shop_title, userinfo.shop_title)
+            |> assign(:shop_description, userinfo.shop_description)
+            |> assign(page_title: userinfo.shop_title)
+            |> assign_form(changeset)
+            |> allow_upload(:image, accept: ~w(.png .jpg), max_entries: 1, auto_upload: true)
+          {:ok, socket}
+        end
+    end
+
+    def reset_socket(socket, shop_id) do
+      posts = Shop.get_items(shop_id)
       socket =
         socket
         |> assign(:page_number, 1)
-        |> assign(page_title: "Home")
         |> assign(:item_name, "")
         |> assign(:description, "")
         |> assign(:price, "")
@@ -117,6 +155,7 @@ defmodule EcommercewebsiteWeb.ShopLive do
     end
 
     def handle_event("upload_new_item", %{"items" => items}, socket) do
+      IO.inspect(socket.assigns)
       case socket.assigns.uploads.image.entries do
         [%Phoenix.LiveView.UploadEntry{done?: true, ref: ref, client_name: client_name} | _] ->
           file_type = Path.extname(client_name)
@@ -132,12 +171,13 @@ defmodule EcommercewebsiteWeb.ShopLive do
               items =
                 items
                 |> Map.put("img_file_name", first)
+                |> Map.put("shop_id", socket.assigns.userinfo.id)
               res = Shop.upload_items(items)
               case res do
                 {:ok, _items} ->
                   cancel_upload(socket, :image, ref)
                   socket =
-                    reset_socket(socket)
+                    reset_socket(socket, socket.assigns.userinfo.id)
                     |> assign_form(Items.changeset(%Items{}))
                   {:noreply, put_flash(socket, :info, "File #{client_name} has been uploaded!")}
                 {:error, _}->
@@ -164,7 +204,6 @@ defmodule EcommercewebsiteWeb.ShopLive do
     end
 
     def handle_event("delete_post", %{"id" => id, "file_path" => file_path}, socket) do
-      IO.inspect(file_path)
       socket =
         case Shop.delete_item(id) do
           {:ok, message} ->
@@ -174,7 +213,7 @@ defmodule EcommercewebsiteWeb.ShopLive do
           {:error, message} ->
             put_flash(socket, :error, message)
         end
-      {:noreply, reset_socket(socket)}
+      {:noreply, reset_socket(socket, socket.assigns.userinfo.id)}
     end
 
     defp assign_form(socket, %Ecto.Changeset{} = changeset) do
