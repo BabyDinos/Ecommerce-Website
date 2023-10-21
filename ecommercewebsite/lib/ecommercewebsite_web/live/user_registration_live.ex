@@ -25,12 +25,12 @@ defmodule EcommercewebsiteWeb.UserRegistrationLive do
           id="username_form"
           phx-change="validate_username"
           phx-submit="save"
-          class = "pt-3 pb-10 pl-5 pr-5 m-0 mt-5 align-middle justify-center min-w-full border border-black"
+          class = "align-middle justify-center min-w-full"
         >
           <.input field={@form1[:username]} type="text" label="Username" required />
           <.input field={@form1[:shop_title]} type="text" label="Shop Title" required />
 
-          <.button phx-disable-with="Continue">Continue</.button>
+          <.button phx-disable-with="Continue" class = "min-w-full">Continue</.button>
         </.simple_form>
 
       <% else %>
@@ -42,7 +42,7 @@ defmodule EcommercewebsiteWeb.UserRegistrationLive do
           phx-trigger-action={@trigger_submit}
           action={~p"/users/log_in?_action=registered"}
           method="post"
-          class = "pt-3 pb-10 pl-5 pr-5 m-0 mt-5 align-middle justify-center min-w-full border border-black"
+          class = "align-middle justify-center min-w-full"
         >
           <.error :if={@check_errors}>
             Oops, something went wrong! Please check the errors below.
@@ -52,7 +52,7 @@ defmodule EcommercewebsiteWeb.UserRegistrationLive do
           <.input field={@form2[:password]} type="password" label="Password" required />
 
           <:actions>
-            <.button phx-disable-with="Create Account...">Create Account</.button>
+            <.button phx-disable-with="Create Account..." class = "min-w-full">Create Account</.button>
           </:actions>
         </.simple_form>
       <% end %>

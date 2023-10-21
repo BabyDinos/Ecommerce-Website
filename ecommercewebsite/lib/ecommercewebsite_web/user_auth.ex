@@ -5,6 +5,8 @@ defmodule EcommercewebsiteWeb.UserAuth do
   import Phoenix.Controller
 
   alias Ecommercewebsite.Accounts
+  alias Ecommercewebsite.Accounts.UserInfo
+  alias Ecommercewebsite.Repo
 
   # Make the remember me cookie valid for 60 days.
   # If you want bump or reduce this value, also change
@@ -33,7 +35,7 @@ defmodule EcommercewebsiteWeb.UserAuth do
     |> renew_session()
     |> put_token_in_session(token)
     |> maybe_write_remember_me_cookie(token, params)
-    |> redirect(to: user_return_to || signed_in_path(conn))
+    |> redirect(to: user_return_to || signed_in_path(user))
   end
 
   defp maybe_write_remember_me_cookie(conn, token, %{"remember_me" => "true"}) do
@@ -164,9 +166,10 @@ defmodule EcommercewebsiteWeb.UserAuth do
 
   def on_mount(:redirect_if_user_is_authenticated, _params, session, socket) do
     socket = mount_current_user(socket, session)
+    user = socket.assigns.current_user
 
     if socket.assigns.current_user do
-      {:halt, Phoenix.LiveView.redirect(socket, to: signed_in_path(socket))}
+      {:halt, Phoenix.LiveView.redirect(socket, to: signed_in_path(user))}
     else
       {:cont, socket}
     end
@@ -184,9 +187,10 @@ defmodule EcommercewebsiteWeb.UserAuth do
   Used for routes that require the user to not be authenticated.
   """
   def redirect_if_user_is_authenticated(conn, _opts) do
-    if conn.assigns[:current_user] do
+    user = conn.assigns[:current_user]
+    if user do
       conn
-      |> redirect(to: signed_in_path(conn))
+      |> redirect(to: signed_in_path(user))
       |> halt()
     else
       conn
@@ -223,5 +227,9 @@ defmodule EcommercewebsiteWeb.UserAuth do
 
   defp maybe_store_return_to(conn), do: conn
 
-  defp signed_in_path(_conn), do: ~p"/"
+  defp signed_in_path(user) do
+    id = user.id
+    userinfo = Repo.get_by(UserInfo, user_id: id)
+    ~p"/shop/#{userinfo.username}"
+  end
 end
