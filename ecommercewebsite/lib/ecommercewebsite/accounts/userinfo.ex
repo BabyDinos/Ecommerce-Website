@@ -10,6 +10,13 @@ defmodule Ecommercewebsite.Accounts.UserInfo do
 
   end
 
+  def shop_description_changeset(userinfo, attrs \\ %{}, opts \\ []) do
+    userinfo
+    |> cast(attrs, [:shop_description])
+    |> validate_required([:shop_description])
+    |> validate_shop_description(opts)
+  end
+
   def shop_title_changeset(userinfo, attrs \\ %{}, opts \\ []) do
     userinfo
     |> cast(attrs, [:shop_title])
@@ -45,7 +52,6 @@ defmodule Ecommercewebsite.Accounts.UserInfo do
   def validate_shop_description(changeset, _opts) do
     changeset
     |> validate_required([:shop_description])
-    |> validate_format(:shop_description, ~r/^[a-zA-Z0-9]+$/, message: "must only contain letters and numbers")
     |> validate_length(:shop_description, min: 0, max: 300)
   end
 

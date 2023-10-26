@@ -14,12 +14,11 @@ defmodule EcommercewebsiteWeb.ShopLive do
       <body>
         <div class = "w-full h-2/5 flex justify-center bg-[url('/images/home-background.jpg')] bg-auto bg-center bg-no-repeat">
           <div class = "w-4/5">
-            <div class = "w-full flex break-all" >
+            <div class = "w-full justify-center flex break-all" >
               <h1 class = "w-full flex text-white font-semibold text-8xl justify-center items-center align-middle text-center mt-64">
                 <%= @shop_title %>
               </h1>
             </div>
-
             <div class = "w-full flex justify-center mt-4">
               <%= if @edit_mode do %>
                   <.form for={@shoptitle_form} phx-change="validate_shop_title" phx-submit="submit_shop_title">
@@ -30,9 +29,25 @@ defmodule EcommercewebsiteWeb.ShopLive do
                   </.form>
               <% end %>
             </div>
-            <h2 class = "p-20 font-medium text-6xl text-white">
-              <%= @shop_description %>
-            </h2>
+
+            <div class = "w-full justify-center flex break-all" >
+              <h2 class = "w-full flex text-white font-semibold text-5xl justify-center items-center align-middle text-center mt-64">
+                <%= @shop_description %>
+              </h2>
+            </div>
+
+            <div class = "w-full flex justify-center mt-4">
+              <%= if @edit_mode do %>
+                  <.form for={@shopdescription_form} phx-change="validate_shop_description" phx-submit="submit_shop_description">
+                    <.input field={@shopdescription_form[:shop_description]} value={@shop_description} placeholder={@shop_description} type="text" required />
+                    <div class = "justify-end w-full flex">
+                      <button class = "mt-5 text-2xl text-black bg-green-600 p-4 rounded-md">Change Shop Description</button>
+                    </div>
+                  </.form>
+              <% end %>
+            </div>
+
+
           </div>
         </div>
         <div class = "w-full h-1/6 flex justify-center">
@@ -113,14 +128,13 @@ defmodule EcommercewebsiteWeb.ShopLive do
               |> put_flash(:error, "You do not have permission to edit this shop page")
             {:ok, socket}
           else
-            attrs =
-              %{}
-              |> Map.put(:shop_title, socket.assigns.userinfo.shop_title)
-            changeset = UserInfo.shop_title_changeset(%UserInfo{}, attrs)
+            shoptitle_changeset = UserInfo.shop_title_changeset(%UserInfo{}, %{shop_title: socket.assigns.userinfo.shop_title})
+            shopdescription_changeset = UserInfo.shop_description_changeset(%UserInfo{}, %{shop_description: socket.assigns.userinfo.shop_description})
             socket =
               socket
               |> assign(:edit_mode, true)
-              |> assign_form(changeset, "shoptitle", :shoptitle_form)
+              |> assign_form(shoptitle_changeset, "shoptitle", :shoptitle_form)
+              |> assign_form(shopdescription_changeset, "shopdescription", :shopdescription_form)
               |> put_flash(:info, "You are now in edit mode")
             {:ok, socket}
           end
@@ -177,6 +191,24 @@ defmodule EcommercewebsiteWeb.ShopLive do
       case Accounts.update_user_info(socket.assigns.userinfo.id, userinfo) do
         {:ok, _} ->
           {:noreply, put_flash(socket, :info, "Shop title successfully updated to #{userinfo["shop_title"]}")}
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, "Shop title not successfully updated")}
+      end
+    end
+
+    def handle_event("validate_shop_description", %{"shopdescription" => userinfo}, socket) do
+      changeset = UserInfo.shop_description_changeset(%UserInfo{}, userinfo)
+      socket =
+        socket
+        |> assign(:shop_description, userinfo["shop_description"])
+        |> assign_form(changeset, "shopdescription", :shopdescription_form)
+      {:noreply, socket}
+    end
+
+    def handle_event("submit_shop_description", %{"shopdescription" => userinfo}, socket) do
+      case Accounts.update_user_info(socket.assigns.userinfo.id, userinfo) do
+        {:ok, _} ->
+          {:noreply, put_flash(socket, :info, "Shop title successfully updated to #{userinfo["shop_description"]}")}
         {:error, _} ->
           {:noreply, put_flash(socket, :error, "Shop title not successfully updated")}
       end
