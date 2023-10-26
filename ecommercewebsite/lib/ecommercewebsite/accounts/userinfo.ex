@@ -10,9 +10,17 @@ defmodule Ecommercewebsite.Accounts.UserInfo do
 
   end
 
-  def changeset(userinfo, attrs, opts \\ []) do
+  def shop_title_changeset(userinfo, attrs \\ %{}, opts \\ []) do
+    userinfo
+    |> cast(attrs, [:shop_title])
+    |> validate_required([:shop_title])
+    |> validate_shop_title(opts)
+  end
+
+  def changeset(userinfo, attrs \\ %{}, opts \\ []) do
     userinfo
     |> cast(attrs, [:username, :shop_title, :shop_description, :user_id])
+    |> validate_required([:username, :shop_title, :shop_description])
     |> validate_username(opts)
     |> validate_shop_title(opts)
     |> validate_shop_description(opts)
