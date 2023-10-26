@@ -22,8 +22,8 @@ defmodule EcommercewebsiteWeb.ShopLive do
 
             <div class = "w-full flex justify-center mt-4">
               <%= if @edit_mode do %>
-                  <.form for={@userinfo_form} phx-change="validate_user_info" phx-submit="submit_shop_title">
-                    <.input field={@userinfo_form[:shop_title]} value={@shop_title} placeholder={@shop_title} type="text" required />
+                  <.form for={@shoptitle_form} phx-change="validate_shop_title" phx-submit="submit_shop_title">
+                    <.input field={@shoptitle_form[:shop_title]} value={@shop_title} placeholder={@shop_title} type="text" required />
                     <div class = "justify-end w-full flex">
                       <button class = "mt-5 text-2xl text-black bg-green-600 p-4 rounded-md">Change Shop Title</button>
                     </div>
@@ -120,7 +120,7 @@ defmodule EcommercewebsiteWeb.ShopLive do
             socket =
               socket
               |> assign(:edit_mode, true)
-              |> assign_form(changeset, "userinfo", :userinfo_form)
+              |> assign_form(changeset, "shoptitle", :shoptitle_form)
               |> put_flash(:info, "You are now in edit mode")
             {:ok, socket}
           end
@@ -164,13 +164,22 @@ defmodule EcommercewebsiteWeb.ShopLive do
       socket
     end
 
-    def handle_event("validate_user_info", %{"userinfo" => userinfo}, socket) do
+    def handle_event("validate_shop_title", %{"shoptitle" => userinfo}, socket) do
       changeset = UserInfo.shop_title_changeset(%UserInfo{}, userinfo)
       socket =
         socket
         |> assign(:shop_title, userinfo["shop_title"])
-        |> assign_form(changeset, "userinfo", :userinfo_form)
+        |> assign_form(changeset, "shoptitle", :shoptitle_form)
       {:noreply, socket}
+    end
+
+    def handle_event("submit_shop_title", %{"shoptitle" => userinfo}, socket) do
+      case Accounts.update_user_info(socket.assigns.userinfo.id, userinfo) do
+        {:ok, _} ->
+          {:noreply, put_flash(socket, :info, "Shop title successfully updated to #{userinfo["shop_title"]}")}
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, "Shop title not successfully updated")}
+      end
     end
 
     def handle_event("validate_new_item", %{"items" => items}, socket) do

@@ -366,4 +366,20 @@ defmodule Ecommercewebsite.Accounts do
       {:error, :user, changeset, _} -> {:error, changeset}
     end
   end
+
+  # userinfo
+
+  def get_userinfo!(id), do: Repo.get!(UserInfo, id)
+
+  def update_user_info(id, attrs) do
+    userinfo = get_userinfo!(id)
+    changeset = UserInfo.changeset(userinfo, attrs)
+    case Repo.update(changeset) do
+      {:ok, userinfo} ->
+        {:ok, userinfo}
+      {:error, %Ecto.Changeset{}} ->
+        {:error, nil}
+    end
+  end
+
 end
