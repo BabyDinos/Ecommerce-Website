@@ -10,12 +10,26 @@ defmodule EcommercewebsiteWeb.ShopLive do
     ~H"""
       <!DOCTYPE html>
       <head>
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.0.0/flowbite.min.css" rel="stylesheet" />
       </head>
       <body>
         <div class = "relative w-full h-2/5 flex justify-center bg-[url('/images/home-background.jpg')] bg-auto bg-center bg-no-repeat">
-          <button phx-click="toggle_edit_mode" class="absolute justify-center items-center top-0 right-0 bg-green-600 w-16 h-16 m-3 p-1 text-white">
-            <img class="max-w-full max-h-full object-contain" src="/images/pencil_edit.png" alt="Edit" />
-          </button>
+          <%= if @show_edit_button do %>
+            <div class="absolute justify-center items-center top-0 right-0 bg-white w-16 h-8 m-3 p-1 text-white">
+              <span class="items-start align-top m-1 text-sm font-bold text-gray-900 dark:text-gray-300">Edit</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <%= if @edit_mode do %>
+                  <input type="checkbox" phx-click="toggle_edit_mode" value="" class="sr-only peer" checked>
+                <% else %>
+                  <input type="checkbox" phx-click="toggle_edit_mode" value="" class="sr-only peer">
+                <% end %>
+                <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600">
+                </div>
+              </label>
+
+            </div>
+          <% end %>
+
 
           <div class = "w-4/5">
             <div class = "w-full justify-center flex break-all" >
@@ -114,35 +128,9 @@ defmodule EcommercewebsiteWeb.ShopLive do
           Right Arrow
           </button>
         </div>
+      <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
       </body>
     """
-    end
-
-    def mount(%{"username" => username, "_action" => "edit"}, session, socket) do
-      current_user = socket.assigns.current_user
-      case mount(%{"username" => username}, session, socket) do
-        {:error, socket} ->
-          {:error, socket}
-        {:ok, socket} ->
-          edit_allowed = current_user.id == socket.assigns.userinfo.user_id
-
-          if !edit_allowed do
-            socket =
-              socket
-              |> put_flash(:error, "You do not have permission to edit this shop page")
-            {:ok, socket}
-          else
-            shoptitle_changeset = UserInfo.shop_title_changeset(%UserInfo{}, %{shop_title: socket.assigns.userinfo.shop_title})
-            shopdescription_changeset = UserInfo.shop_description_changeset(%UserInfo{}, %{shop_description: socket.assigns.userinfo.shop_description})
-            socket =
-              socket
-              |> assign(:edit_mode, true)
-              |> assign_form(shoptitle_changeset, "shoptitle", :shoptitle_form)
-              |> assign_form(shopdescription_changeset, "shopdescription", :shopdescription_form)
-              |> put_flash(:info, "You are now in edit mode")
-            {:ok, socket}
-          end
-      end
     end
 
     def mount(%{"username" => username}, _session, socket) do
@@ -158,6 +146,7 @@ defmodule EcommercewebsiteWeb.ShopLive do
           changeset = Items.changeset(%Items{})
           socket =
             reset_socket(socket, shop_id)
+            |> assign(:show_edit_button, socket.assigns.current_user.id == userinfo.user_id)
             |> assign(:edit_mode, false)
             |> assign(userinfo: userinfo)
             |> assign(:shop_title, userinfo.shop_title)
@@ -185,9 +174,14 @@ defmodule EcommercewebsiteWeb.ShopLive do
     def handle_event("toggle_edit_mode", _params, socket) do
       socket =
         if socket.assigns.edit_mode do
-          push_navigate(socket, to: ~p"/shop/#{socket.assigns.userinfo.username}")
+          put_flash(socket, :info, "You are exiting edit mode")
         else
-          push_navigate(socket, to: ~p"/shop/#{socket.assigns.userinfo.username}/?_action=edit")
+          shoptitle_changeset = UserInfo.shop_title_changeset(%UserInfo{}, %{shop_title: socket.assigns.userinfo.shop_title})
+          shopdescription_changeset = UserInfo.shop_description_changeset(%UserInfo{}, %{shop_description: socket.assigns.userinfo.shop_description})
+          socket
+            |> assign_form(shoptitle_changeset, "shoptitle", :shoptitle_form)
+            |> assign_form(shopdescription_changeset, "shopdescription", :shopdescription_form)
+            |> put_flash(:info, "You are now in edit mode")
         end
       socket = assign(socket, :edit_mode, not socket.assigns.edit_mode)
       {:noreply, socket}

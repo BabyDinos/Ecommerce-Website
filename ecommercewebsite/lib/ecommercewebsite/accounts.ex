@@ -11,6 +11,9 @@ defmodule Ecommercewebsite.Accounts do
 
   ## Database getters
 
+  def get_userinfo_by_user(nil) do
+    nil
+  end
 
   def get_userinfo_by_user(user) do
     if userinfo = Repo.get_by(UserInfo, user_id: user.id) do
