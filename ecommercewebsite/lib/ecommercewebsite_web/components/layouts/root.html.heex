@@ -13,10 +13,17 @@
   </head>
   <body class="bg-white">
     <ul class="relative z-10 flex items-center gap-4 justify-end text-center bg-blue-300 pb-4 pt-4 pr-4">
+      <li>
       <%= if @current_user do %>
-        <li class="font-bold text-blue">
-          <%= @current_user.email %>
+        <li>
+          <.link
+          href={~p"/shop/#{@current_user_info.username}"}
+          class = "font-bold text-white bg-gray-950 flex justify-center items-center p-4 w-24 h-10 rounded-lg"
+          >
+          <%= @current_user_info.username %>'s Shop
+        </.link>
         </li>
+
         <li>
           <.link
             href={~p"/users/settings"}
@@ -52,6 +59,7 @@
           </.link>
         </li>
       <% end %>
+      </li>
     </ul>
     <%= @inner_content %>
   </body>

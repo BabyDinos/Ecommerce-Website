@@ -93,7 +93,10 @@ defmodule EcommercewebsiteWeb.UserAuth do
   def fetch_current_user(conn, _opts) do
     {user_token, conn} = ensure_user_token(conn)
     user = user_token && Accounts.get_user_by_session_token(user_token)
-    assign(conn, :current_user, user)
+    userinfo = Accounts.get_userinfo_by_user(user)
+    conn
+    |> assign(:current_user, user)
+    |> assign(:current_user_info, userinfo)
   end
 
   defp ensure_user_token(conn) do

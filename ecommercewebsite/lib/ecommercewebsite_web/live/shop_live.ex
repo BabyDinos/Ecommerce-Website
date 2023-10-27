@@ -12,7 +12,11 @@ defmodule EcommercewebsiteWeb.ShopLive do
       <head>
       </head>
       <body>
-        <div class = "w-full h-2/5 flex justify-center bg-[url('/images/home-background.jpg')] bg-auto bg-center bg-no-repeat">
+        <div class = "relative w-full h-2/5 flex justify-center bg-[url('/images/home-background.jpg')] bg-auto bg-center bg-no-repeat">
+          <button phx-click="toggle_edit_mode" class="absolute justify-center items-center top-0 right-0 bg-green-600 w-16 h-16 m-3 p-1 text-white">
+            <img class="max-w-full max-h-full object-contain" src="/images/pencil_edit.png" alt="Edit" />
+          </button>
+
           <div class = "w-4/5">
             <div class = "w-full justify-center flex break-all" >
               <h1 class = "w-full flex text-white font-semibold text-8xl justify-center items-center align-middle text-center mt-64">
@@ -178,6 +182,17 @@ defmodule EcommercewebsiteWeb.ShopLive do
       socket
     end
 
+    def handle_event("toggle_edit_mode", _params, socket) do
+      socket =
+        if socket.assigns.edit_mode do
+          push_navigate(socket, to: ~p"/shop/#{socket.assigns.userinfo.username}")
+        else
+          push_navigate(socket, to: ~p"/shop/#{socket.assigns.userinfo.username}/?_action=edit")
+        end
+      socket = assign(socket, :edit_mode, not socket.assigns.edit_mode)
+      {:noreply, socket}
+    end
+
     def handle_event("validate_shop_title", %{"shoptitle" => userinfo}, socket) do
       changeset = UserInfo.shop_title_changeset(%UserInfo{}, userinfo)
       socket =
@@ -202,6 +217,7 @@ defmodule EcommercewebsiteWeb.ShopLive do
         socket
         |> assign(:shop_description, userinfo["shop_description"])
         |> assign_form(changeset, "shopdescription", :shopdescription_form)
+        |> redirect(to: ~p"/")
       {:noreply, socket}
     end
 
