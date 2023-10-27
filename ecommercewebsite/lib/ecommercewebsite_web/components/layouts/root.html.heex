@@ -12,27 +12,46 @@
     </script>
   </head>
   <body class="bg-white">
-    <ul class="relative z-10 flex items-center gap-4 justify-end text-center bg-blue-300 pb-4 pt-4 pr-4">
-      <li>
+    <ul class="relative z-10 flex items-center gap-4 justify-start text-center bg-blue-300 pb-4 pt-4 pr-4">
+      <div class="bg-white w-10 h-10 ml-2 p-1 rounded-lg border-black border">
+        <a
+          href="/"
+          class="w-full h-full"
+        >
+          <img src="/images/home_icon.png" alt="Home Icon" class="w-full h-full"/>
+        </a>
+      </div>
+      <div class="bg-white w-10 h-10 p-1 rounded-lg border-black border">
+        <a
+          href="/"
+          class="w-full h-full"
+        >
+          <img src="/images/search_icon.png" alt="Home Icon" class="w-full h-full"/>
+        </a>
+      </div>
+      <a class = "justify-end ml-auto">
       <%= if @current_user do %>
-        <li>
+        <a>
           <.link
           href={~p"/shop/#{@current_user_info.username}"}
-          class = "font-bold text-white bg-gray-950 flex justify-center items-center p-4 w-24 h-10 rounded-lg"
+          class = "font-bold text-white bg-gray-950 flex justify-center items-center p-4 min-w-24 max-w-48 h-10 rounded-lg"
           >
-          <%= @current_user_info.username %>'s Shop
-        </.link>
-        </li>
+          <div class="text-ellipsis overflow-hidden whitespace-nowrap">
+            <%= @current_user_info.username %>'s Shop
+          </div>
 
-        <li>
+        </.link>
+        </a>
+
+        <a>
           <.link
             href={~p"/users/settings"}
             class="font-bold text-white bg-gray-950 flex justify-center items-center p-4 w-24 h-10 rounded-lg"
           >
             Settings
           </.link>
-        </li>
-        <li>
+        </a>
+        <a>
           <.link
             href={~p"/users/log_out"}
             method="delete"
@@ -40,26 +59,26 @@
           >
             Log out
           </.link>
-        </li>
+        </a>
       <% else %>
-        <li>
+        <a>
           <.link
             href={~p"/users/register"}
             class="font-bold text-white bg-gray-950 flex justify-center items-center p-4 w-24 h-10 rounded-lg"
           >
             Register
           </.link>
-        </li>
-        <li>
+        </a>
+        <a>
           <.link
             href={~p"/users/log_in"}
             class="font-bold text-black bg-white border border-black flex justify-center items-center p-4 w-24 h-10 rounded-lg"
           >
             Log in
           </.link>
-        </li>
+        </a>
       <% end %>
-      </li>
+      </a>
     </ul>
     <%= @inner_content %>
   </body>

@@ -15,7 +15,7 @@ defmodule EcommercewebsiteWeb.ShopLive do
       <body>
         <div class = "relative w-full h-2/5 flex justify-center bg-[url('/images/home-background.jpg')] bg-auto bg-center bg-no-repeat">
           <%= if @show_edit_button do %>
-            <div class="absolute justify-center items-center top-0 right-0 bg-white w-16 h-8 m-3 p-1 text-white">
+            <div class="absolute justify-center items-center top-0 right-0 bg-white w-16 h-8 m-3 p-1 text-white rounded-full">
               <span class="items-start align-top m-1 text-sm font-bold text-gray-900 dark:text-gray-300">Edit</span>
               <label class="relative inline-flex items-center cursor-pointer">
                 <%= if @edit_mode do %>
@@ -211,7 +211,6 @@ defmodule EcommercewebsiteWeb.ShopLive do
         socket
         |> assign(:shop_description, userinfo["shop_description"])
         |> assign_form(changeset, "shopdescription", :shopdescription_form)
-        |> redirect(to: ~p"/")
       {:noreply, socket}
     end
 
