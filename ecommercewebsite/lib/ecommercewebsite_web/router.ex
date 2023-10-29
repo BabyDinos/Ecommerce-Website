@@ -69,6 +69,7 @@ defmodule EcommercewebsiteWeb.Router do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
       live "/shop/:username", ShopLive, :home
+      live "/shop", ShopSearchLive, :search
     end
   end
 

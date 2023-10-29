@@ -76,8 +76,8 @@ defmodule EcommercewebsiteWeb.ShopLive do
         </div>
         <div class = "w-2/5 h-1/8 flex mx-auto items-start justify-center">
           <%= if @edit_mode do %>
-            <.button type="button" phx-click={show_modal("upload-form")} class = "w-2/6 h-1/6 font-medium text-6xl">Upload New Item</.button>
-              <.modal id = "upload-form" >
+            <.button phx-click={show_modal("upload-form")} class = "w-2/6 h-1/6 font-medium text-6xl">Upload New Item</.button>
+              <.modal id = "upload-form">
                 <.form for={@items_form} phx-change= "validate_new_item" phx-submit="upload_new_item"
                   class = "mt-[5%] ml-[5%] font-medium text-6xl w-3/5" enctype="multipart/form-data">
                   <.input field={@items_form[:item_name]} value = {@item_name} placeholder = {@item_name} type="text" label="Item Name" required />
@@ -95,25 +95,18 @@ defmodule EcommercewebsiteWeb.ShopLive do
               </.modal>
           <% end %>
         </div>
-        <div class="m-12 grid grid-cols-3 gap-x-4 items-start justify-center space-y-0 w-full h-1/2">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mr-8 ml-8">
           <%= for post <- Enum.slice(@posts, (@page_number - 1) * 9, (9)) do %>
-            <div class="flex flex-col m-0">
-              <div class = "flex items-center justify-center">
-                <img src = {post.img_file_name} class = "max-w-full" />
+            <div class="relative flex flex-col m-0">
+              <div class = "relative flex items-center justify-center border-solid border">
+                <img src = {post.img_file_name} class = "h-auto max-w-full rounded-lg p-6"/>
+                <%= if @edit_mode do %>
+                  <button class ="absolute top-6 right-6 text-2xl rounded-full bg-black transform translate-x-1/2 -translate-y-1/2" phx-click="delete_post"
+                     phx-value-id={post.id} phx-value-file_path={post.img_file_name} data-confirm="Are you sure you want to delete this post?">
+                     <img src="/images/delete_button.png" class="w-6 h-7 m-2"/>
+                  </button>
+                <% end %>
               </div>
-              <div class = "flex items-center justify-center">
-                <div class = "items-center justify-center">
-                  <h2> <%= post.item_name %> </h2>
-                  <p>Description: <%= post.description %></p>
-                  <p>Price: <%= post.price %></p>
-                  <p>Quantity: <%= post.quantity %> </p>
-                </div>
-              </div>
-              <%= if @edit_mode do %>
-                <div class = "flex items-center justify-center">
-                  <button class ="mt-5 text-2xl text-black bg-red-600 p-4 rounded-md" phx-click="delete_post" phx-value-id={post.id} phx-value-file_path={post.img_file_name} >DELETE</button>
-                </div>
-              <% end %>
             </div>
           <% end %>
         </div>
