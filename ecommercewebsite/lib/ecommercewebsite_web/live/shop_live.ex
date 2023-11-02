@@ -6,6 +6,8 @@ defmodule EcommercewebsiteWeb.ShopLive do
   alias Ecommercewebsite.Accounts
   alias Ecommercewebsite.Accounts.UserInfo
 
+  @posts_on_each_page 9
+
   def render(assigns) do
     ~H"""
       <!DOCTYPE html>
@@ -13,10 +15,10 @@ defmodule EcommercewebsiteWeb.ShopLive do
       <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.0.0/flowbite.min.css" rel="stylesheet" />
       </head>
       <body>
-        <div class = "relative w-full h-2/5 flex justify-center bg-[url('/images/home-background.jpg')] bg-auto bg-center bg-no-repeat">
+        <div class = "relative w-full h-2/5 flex justify-center bg-black">
           <%= if @show_edit_button do %>
-            <div class="absolute justify-center items-center top-0 right-0 bg-white w-16 h-8 m-3 p-1 text-white rounded-full">
-              <span class="items-start align-top m-1 text-sm font-bold text-gray-900 dark:text-gray-300">Edit</span>
+            <div class="absolute justify-center items-center top-0 right-0 bg-black w-16 h-8 m-3 p-1 text-white rounded-full">
+              <span class="items-start align-top m-1 text-sm font-bold text-white dark:text-gray-300">Edit</span>
               <label class="relative inline-flex items-center cursor-pointer">
                 <%= if @edit_mode do %>
                   <input type="checkbox" phx-click="toggle_edit_mode" value="" class="sr-only peer" checked>
@@ -41,8 +43,9 @@ defmodule EcommercewebsiteWeb.ShopLive do
               <%= if @edit_mode do %>
                   <.form for={@shoptitle_form} phx-change="validate_shop_title" phx-submit="submit_shop_title">
                     <.input field={@shoptitle_form[:shop_title]} value={@shop_title} placeholder={@shop_title} type="text" required />
-                    <div class = "justify-end w-full flex">
-                      <button class = "mt-5 text-2xl text-black bg-green-600 p-4 rounded-md">Change Shop Title</button>
+                    <div class = "justify-center w-full flex">
+                      <button class = "mt-5 p-4 text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm text-center dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800">
+                      Change Shop Title</button>
                     </div>
                   </.form>
               <% end %>
@@ -58,8 +61,10 @@ defmodule EcommercewebsiteWeb.ShopLive do
               <%= if @edit_mode do %>
                   <.form for={@shopdescription_form} phx-change="validate_shop_description" phx-submit="submit_shop_description">
                     <.input field={@shopdescription_form[:shop_description]} value={@shop_description} placeholder={@shop_description} type="text" required />
-                    <div class = "justify-end w-full flex">
-                      <button class = "mt-5 text-2xl text-black bg-green-600 p-4 rounded-md">Change Shop Description</button>
+                    <div class = "justify-center w-full flex">
+                      <button class = "mt-5 p-4  text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm text-center dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800">
+                      Change Shop Description
+                      </button>
                     </div>
                   </.form>
               <% end %>
@@ -70,11 +75,10 @@ defmodule EcommercewebsiteWeb.ShopLive do
         </div>
         <div class = "w-full h-1/6 flex justify-center">
           <h1 class = "font-semibold text-8xl text-center mt-64">
-          This is where my store will be
-
+          Shop Our Collections
           </h1>
         </div>
-        <div class = "w-2/5 h-1/8 flex mx-auto items-start justify-center">
+        <div class = "w-3/5 h-3/8 flex mb-16 items-start justify-center">
           <%= if @edit_mode do %>
             <.button phx-click={show_modal("upload-form")} class = "w-2/6 h-1/6 font-medium text-6xl">Upload New Item</.button>
               <.modal id = "upload-form">
@@ -96,30 +100,62 @@ defmodule EcommercewebsiteWeb.ShopLive do
           <% end %>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mr-8 ml-8">
-          <%= for post <- Enum.slice(@posts, (@page_number - 1) * 9, (9)) do %>
+          <%= for post <- Enum.slice(@posts, (@page_number) * @posts_on_each_page, (@posts_on_each_page)) do %>
             <div class="relative flex flex-col m-0">
-              <div class = "relative flex items-center justify-center border-solid border">
-                <img src = {post.img_file_name} class = "h-auto max-w-full rounded-lg p-6"/>
+              <div class = "w-full h-full relative flex items-center justify-center border-solid border">
+
                 <%= if @edit_mode do %>
-                  <button class ="absolute top-6 right-6 text-2xl rounded-full bg-black transform translate-x-1/2 -translate-y-1/2" phx-click="delete_post"
-                     phx-value-id={post.id} phx-value-file_path={post.img_file_name} data-confirm="Are you sure you want to delete this post?">
-                     <img src="/images/delete_button.png" class="w-6 h-7 m-2"/>
+                  <button class ="inline-flex items-center h-10 px-5 text-indigo-100 transition-colors duration-150 bg-red-500 focus:outline-none hover:bg-red-600 absolute top-0 right-0 text-2xl rounded transform translate-x-50 -translate-y-0" phx-click="delete_post"
+                    phx-value-id={post.id} phx-value-file_path={post.img_file_name} data-confirm="Are you sure you want to delete this post?">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16"> <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/> <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/> </svg>
+                    <span>Delete</span>
                   </button>
                 <% end %>
+                <div class="w-full h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                  <section class="w-full h-full text-gray-700 body-font overflow-hidden bg-white">
+                    <div class="w-full h-full container px-5 pt-24 pb-12 mx-auto">
+                      <div class="h-full lg:w-4/5 mx-auto flex flex-wrap">
+                        <div class = "h-3/4 max-w-full">
+                          <img src = {post.img_file_name} class = "h-auto max-w-full rounded-t-lg p-6"/>
+                        </div>
+                        <div class="lg:w-1/2 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
+                          <h2 class="text-sm title-font text-gray-500 tracking-widest"><%= @shop_title %></h2>
+                          <h1 class="text-gray-900 text-3xl title-font font-medium mb-1"><%= post.item_name %></h1>
+                          <p class="leading-relaxed"><%= post.description %></p>
+                          <div class="align-bottom flex flex-row mt-6">
+                            <span class="title-font font-medium text-2xl text-gray-900">$<%= post.price %></span>
+                            <button class="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">Add to Cart</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
               </div>
             </div>
           <% end %>
         </div>
-        <div class = "flex items-start justify-center pt-12 pb-12">
-          <button class = "justify-center">
-          Left Arrow
-          </button>
-          <form phx-change = "submit_page_number" class = "ml-5 mr-5">
-            <input name = "input" value = {@page_number} placeholder = {@page_number} type="number" label="Page Number" />
-          </form>
-          <button class = "justify-center">
-          Right Arrow
-          </button>
+
+        <div class="flex flex-col items-center mt-6">
+          <!-- Help text -->
+          <span class="text-sm text-gray-700 dark:text-gray-400">
+              Showing <span class="font-semibold text-gray-900 dark:text-white"><%= (@page_number * @posts_on_each_page) + 1 %></span> to <span class="font-semibold text-gray-900 dark:text-white"><%= (@page_number * @posts_on_each_page) + @current_posts %></span> of <span class="font-semibold text-gray-900 dark:text-white"><%= @total_posts %></span> Entries
+          </span>
+          <div class="inline-flex mt-2 xs:mt-0">
+            <!-- Buttons -->
+            <button phx-click="decrease_page_number" phx-value-page_number= {@page_number} phx-value-posts_on_each_page={@posts_on_each_page} class="flex items-center justify-center px-4 h-10 text-base font-medium text-white bg-gray-800 rounded-l hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+                </svg>
+                Prev
+            </button>
+            <button phx-click="increase_page_number" phx-value-page_number={@page_number} phx-value-posts_on_each_page={@posts_on_each_page} class="flex items-center justify-center px-4 h-10 text-base font-medium text-white bg-gray-800 border-0 border-l border-gray-700 rounded-r hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                Next
+                <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+              </svg>
+            </button>
+          </div>
         </div>
       <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
       </body>
@@ -155,12 +191,15 @@ defmodule EcommercewebsiteWeb.ShopLive do
       posts = Shop.get_items(shop_id)
       socket =
         socket
-        |> assign(:page_number, 1)
+        |> assign(:page_number, 0)
         |> assign(:item_name, "")
         |> assign(:description, "")
         |> assign(:price, "")
         |> assign(:quantity, "")
         |> assign(:posts, posts)
+        |> assign(:posts_on_each_page, @posts_on_each_page)
+        |> assign(:current_posts, min(length(posts), @posts_on_each_page))
+        |> assign(:total_posts, length(posts))
       socket
     end
 
@@ -267,13 +306,36 @@ defmodule EcommercewebsiteWeb.ShopLive do
       end
     end
 
-    def handle_event("submit_page_number", %{"input" => page_number}, socket) do
+    def handle_event("decrease_page_number", %{"page_number" => page_number, "posts_on_each_page" => posts_on_each_page}, socket) do
       page_number = String.to_integer(page_number)
-      max_pages = :math.ceil(length(socket.assigns.posts) / 9)
-      socket =
-        socket
-        |> assign(:page_number, max(1, min(page_number, max_pages)))
-      {:noreply, socket}
+      posts_on_each_page = String.to_integer(posts_on_each_page)
+      if page_number != 0 do
+        page_number = page_number - 1
+        current_posts = length(Enum.slice(socket.assigns.posts, (page_number) * posts_on_each_page, (posts_on_each_page)))
+        socket =
+          socket
+          |> assign(:page_number, page_number)
+          |> assign(:current_posts, current_posts)
+        {:noreply, socket}
+      else
+        {:noreply, socket}
+      end
+    end
+
+    def handle_event("increase_page_number", %{"page_number" => page_number, "posts_on_each_page" => posts_on_each_page}, socket) do
+      page_number = String.to_integer(page_number)
+      posts_on_each_page = String.to_integer(posts_on_each_page)
+      if (page_number + 1) * posts_on_each_page + 1 > socket.assigns.total_posts do
+        {:noreply, socket}
+      else
+        page_number = page_number + 1
+        current_posts = length(Enum.slice(socket.assigns.posts, (page_number) * posts_on_each_page, (posts_on_each_page)))
+        socket =
+          socket
+          |> assign(:page_number, page_number)
+          |> assign(:current_posts, current_posts)
+        {:noreply, socket}
+      end
     end
 
     def handle_event("delete_post", %{"id" => id, "file_path" => file_path}, socket) do

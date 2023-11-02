@@ -11,22 +11,22 @@
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
   </head>
-  <body class="bg-white">
-    <ul class="relative z-10 flex items-center gap-4 justify-start text-center bg-blue-300 pb-4 pt-4 pr-4">
-      <div class="bg-white w-10 h-10 ml-2 p-1 rounded-lg border-black border">
+  <body>
+    <ul class="relative z-10 flex items-center gap-4 justify-start text-center bg-black pb-4 pt-4 pr-4">
+      <div class="">
         <a
           href="/"
-          class="w-full h-full"
+          class="font-bold text-white flex justify-center items-center p-4 min-w-24 max-w-48 h-10 rounded-lg"
         >
-          <img src="/images/home_icon.png" alt="Home Icon" class="w-full h-full"/>
+          Home
         </a>
       </div>
-      <div class="bg-white w-10 h-10 p-1 rounded-lg border-black border">
+      <div class="">
         <a
           href="/shop"
-          class="w-full h-full"
+          class="font-bold text-white flex justify-center items-center p-4 min-w-24 max-w-48 h-10 rounded-lg"
         >
-          <img src="/images/search_icon.png" alt="Home Icon" class="w-full h-full"/>
+          Search
         </a>
       </div>
       <a class = "justify-end ml-auto">
@@ -34,9 +34,9 @@
         <a>
           <.link
           href={~p"/shop/#{@current_user_info.username}"}
-          class = "font-bold text-white bg-gray-950 flex justify-center items-center p-4 min-w-24 max-w-48 h-10 rounded-lg"
+          class = "font-bold text-white flex justify-center items-center p-4 min-w-24 max-w-48 h-10 rounded-lg"
           >
-          <div class="text-ellipsis overflow-hidden whitespace-nowrap">
+          <div class="text-ellipsis text-white overflow-hidden whitespace-nowrap">
             My Shop
           </div>
 
@@ -46,7 +46,7 @@
         <a>
           <.link
             href={~p"/users/settings"}
-            class="font-bold text-white bg-gray-950 flex justify-center items-center p-4 w-24 h-10 rounded-lg"
+            class="font-bold text-white flex justify-center items-center p-4 w-24 h-10 rounded-lg"
           >
             Settings
           </.link>
@@ -55,7 +55,7 @@
           <.link
             href={~p"/users/log_out"}
             method="delete"
-            class="font-bold text-black bg-white border border-black flex justify-center items-center p-4 w-24 h-10 rounded-lg"
+            class="font-bold text-white border border-black flex justify-center items-center p-4 w-24 h-10 rounded-lg"
           >
             Log out
           </.link>
@@ -64,7 +64,7 @@
         <a>
           <.link
             href={~p"/users/register"}
-            class="font-bold text-white bg-gray-950 flex justify-center items-center p-4 w-24 h-10 rounded-lg"
+            class="font-bold text-white flex justify-center items-center p-4 w-24 h-10 rounded-lg"
           >
             Register
           </.link>
