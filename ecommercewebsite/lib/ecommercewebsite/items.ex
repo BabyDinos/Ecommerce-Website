@@ -36,7 +36,7 @@ defmodule Ecommercewebsite.Items do
 
   def validate_price(changeset) do
     changeset
-    |> validate_number(:price, greater_than_or_equal_to: 0, less_than_or_equal_to: 900, message: "Price must be in between 0 and 900")
+    |> validate_number(:price, greater_than_or_equal_to: 1, less_than_or_equal_to: 900, message: "Price must be in between 1 and 900")
   end
 
   def validate_quantity(changeset) do

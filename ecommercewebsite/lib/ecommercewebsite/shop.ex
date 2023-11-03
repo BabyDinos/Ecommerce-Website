@@ -11,6 +11,12 @@ defmodule Ecommercewebsite.Shop do
       |> Repo.insert()
   end
 
+  def update_items(attrs, id) do
+    Repo.get!(Items, id)
+      |> Ecto.Changeset.cast(attrs, [:item_name, :description, :price, :quantity, :img_file_name, :shop_id])
+      |> Repo.update()
+  end
+
   def get_items(shop_id) do
     query =
       from i in Items,

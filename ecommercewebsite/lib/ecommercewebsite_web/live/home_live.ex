@@ -7,7 +7,7 @@ defmodule EcommercewebsiteWeb.HomeLive do
       <head>
       </head>
       <body>
-        <h1 class = "text-center text-xl text-black">
+        <h1 class = "w-full h-full text-center text-xl bg-white text-black">
           Home page
         </h1>
       </body>

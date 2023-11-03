@@ -284,6 +284,8 @@ defmodule EcommercewebsiteWeb.CoreComponents do
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
                 multiple pattern placeholder readonly required rows size step)
 
+  attr :class, :string, default: ""
+
   slot :inner_block
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
@@ -372,8 +374,8 @@ defmodule EcommercewebsiteWeb.CoreComponents do
           "mt-2 block min-w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
           "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
-        ]}
+          @errors != [] && "border-rose-400 focus:border-rose-400",
+          @class]}
         {@rest}
       />
       <.error :for={msg <- @errors}><%= msg %></.error>
