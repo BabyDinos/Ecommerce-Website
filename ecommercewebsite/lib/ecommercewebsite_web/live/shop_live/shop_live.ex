@@ -19,8 +19,12 @@ defmodule EcommercewebsiteWeb.ShopLive do
       _ ->
         shop_id = userinfo.id
         changeset = Items.changeset(%Items{})
+        cart = Shop.get_cart(socket.assigns.current_user.id)
+        post = Shop.get_items_from_cart(cart)
         socket =
           reset_socket(socket, shop_id)
+          |> assign(:current_cart, cart)
+          |> assign(:cart_posts, post)
           |> assign(:show_edit_button, socket.assigns.current_user.id == userinfo.user_id)
           |> assign(:edit_mode, false)
           |> assign(userinfo: userinfo)
@@ -111,6 +115,18 @@ defmodule EcommercewebsiteWeb.ShopLive do
     end
 
     def handle_event("validate_new_item", %{"items" => items}, socket) do
+      changeset = Items.changeset(%Items{} ,items)
+      socket =
+        socket
+        |> assign(:item_name, items["item_name"])
+        |> assign(:description, items["description"])
+        |> assign(:price, items["price"])
+        |> assign(:quantity, items["quantity"])
+        |> assign_form(changeset, "items", :items_form)
+      {:noreply, socket}
+    end
+
+    def handle_event("validate_old_item", %{"items" => items}, socket) do
       post_id = String.to_integer(items["id"])
       index = Enum.find_index(socket.assigns.form_data, fn %{ "id" => id } -> id == post_id end)
       new_data = %{
@@ -265,6 +281,24 @@ defmodule EcommercewebsiteWeb.ShopLive do
             put_flash(socket, :error, message)
         end
       {:noreply, reset_socket(socket, socket.assigns.userinfo.id)}
+    end
+
+    def handle_event("add_to_cart", %{"item_id" => item_id}, socket) do
+      cart = %{"item_id" => item_id, "user_id" => socket.assigns.current_user.id, "quantity" => 1}
+      post = Shop.get_item(item_id)
+      case Shop.upload_cart(cart) do
+        {:ok, _} ->
+          current_cart = Shop.get_cart(socket.assigns.current_user.id)
+          current_cart_posts = Shop.get_items_from_cart(current_cart)
+          IO.inspect(current_cart_posts)
+          socket =
+            socket
+            |> assign(:current_cart, current_cart)
+            |> assign(:cart_posts, current_cart_posts)
+          {:noreply, put_flash(socket, :info, "Successfully added #{post.item_name} to cart")}
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, "Could not add #{post.item_name} to cart")}
+      end
     end
 
     defp assign_form(socket, %Ecto.Changeset{} = changeset, name, form_name) do

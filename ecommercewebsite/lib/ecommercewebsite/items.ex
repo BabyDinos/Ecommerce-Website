@@ -41,7 +41,7 @@ defmodule Ecommercewebsite.Items do
 
   def validate_quantity(changeset) do
     changeset
-    |> validate_number(:quantity, greater_than_or_equal_to: 1, less_than_or_equal_to: 9999, message: "Price must be in between 1 and 9999")
+    |> validate_number(:quantity, greater_than_or_equal_to: 1, less_than_or_equal_to: 9999, message: "Quantity must be in between 1 and 9999")
   end
 
 end
