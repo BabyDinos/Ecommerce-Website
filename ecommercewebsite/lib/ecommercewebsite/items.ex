@@ -25,13 +25,13 @@ defmodule Ecommercewebsite.Items do
   def validate_item_name(changeset) do
     changeset
     |> validate_required([:item_name])
-    |> validate_length(:item_name, min: 1, max: 100, message: "Must have a name")
+    |> validate_length(:item_name, min: 1, max: 100, message: "Name length must be in between 1 and 100")
   end
 
   def validate_description(changeset) do
     changeset
     |> validate_required([:description])
-    |> validate_length(:description, min: 1, max: 300, message: "Must have a description")
+    |> validate_length(:description, min: 1, max: 255, message: "Description length must be in between 1 and 255")
   end
 
   def validate_price(changeset) do

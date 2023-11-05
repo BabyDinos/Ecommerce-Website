@@ -22,7 +22,10 @@ defmodule EcommercewebsiteWeb.ShopLive do
         cart = Shop.get_cart(socket.assigns.current_user.id)
         post = Shop.get_items_from_cart(cart)
         socket =
-          reset_socket(socket, shop_id)
+          socket
+          |> reset_socket(shop_id)
+          |> assign(:show_alert, false)
+          |> assign(:alert_message, "")
           |> assign(:current_cart, cart)
           |> assign(:cart_posts, post)
           |> assign(:show_edit_button, socket.assigns.current_user.id == userinfo.user_id)
@@ -65,16 +68,22 @@ defmodule EcommercewebsiteWeb.ShopLive do
     def handle_event("toggle_edit_mode", _params, socket) do
       socket =
         if socket.assigns.edit_mode do
-          put_flash(socket, :info, "You are exiting edit mode")
+          socket
         else
           shoptitle_changeset = UserInfo.shop_title_changeset(%UserInfo{}, %{shop_title: socket.assigns.userinfo.shop_title})
           shopdescription_changeset = UserInfo.shop_description_changeset(%UserInfo{}, %{shop_description: socket.assigns.userinfo.shop_description})
           socket
             |> assign_form(shoptitle_changeset, "shoptitle", :shoptitle_form)
             |> assign_form(shopdescription_changeset, "shopdescription", :shopdescription_form)
-            |> put_flash(:info, "You are now in edit mode")
         end
-      socket = assign(socket, :edit_mode, not socket.assigns.edit_mode)
+      socket =
+        socket
+        |> assign(:edit_mode, not socket.assigns.edit_mode)
+      {:noreply, socket}
+    end
+
+    def handle_event("dismiss_alert", _params, socket) do
+      socket = assign(socket, :show_alert, false)
       {:noreply, socket}
     end
 
@@ -88,12 +97,13 @@ defmodule EcommercewebsiteWeb.ShopLive do
     end
 
     def handle_event("submit_shop_title", %{"shoptitle" => userinfo}, socket) do
-      case Accounts.update_user_info(socket.assigns.userinfo.id, userinfo) do
+      socket = case Accounts.update_user_info(socket.assigns.userinfo.id, userinfo) do
         {:ok, _} ->
-          {:noreply, put_flash(socket, :info, "Shop title successfully updated to #{userinfo["shop_title"]}")}
+          show_alert(socket, "Shop title successfully updated")
         {:error, _} ->
-          {:noreply, put_flash(socket, :error, "Shop title not successfully updated")}
-      end
+          show_alert(socket, "Shop title not successfully updated")
+        end
+      {:noreply, socket}
     end
 
     def handle_event("validate_shop_description", %{"shopdescription" => userinfo}, socket) do
@@ -106,12 +116,13 @@ defmodule EcommercewebsiteWeb.ShopLive do
     end
 
     def handle_event("submit_shop_description", %{"shopdescription" => userinfo}, socket) do
-      case Accounts.update_user_info(socket.assigns.userinfo.id, userinfo) do
+      socket = case Accounts.update_user_info(socket.assigns.userinfo.id, userinfo) do
         {:ok, _} ->
-          {:noreply, put_flash(socket, :info, "Shop title successfully updated to #{userinfo["shop_description"]}")}
+          show_alert(socket, "Shop description successfully updated")
         {:error, _} ->
-          {:noreply, put_flash(socket, :error, "Shop title not successfully updated")}
+          show_alert(socket, "Shop description not successfully updated")
       end
+      {:noreply, socket}
     end
 
     def handle_event("validate_new_item", %{"items" => items}, socket) do
@@ -170,7 +181,7 @@ defmodule EcommercewebsiteWeb.ShopLive do
                   socket =
                     reset_socket(socket, socket.assigns.userinfo.id)
                     |> assign_form(Items.changeset(%Items{}), "items", :items_form)
-                    |> put_flash(:info, "File #{client_name} has been uploaded!")
+                    |> show_alert("File #{client_name} has been uploaded!")
                   {:noreply, socket}
                 {:error, _}->
                   {:noreply, socket}
@@ -182,7 +193,10 @@ defmodule EcommercewebsiteWeb.ShopLive do
             end
         _ ->
           # Files are still in progress, do not consume them yet
-          {:noreply, put_flash(socket, :info, "file has not finished uploading")}
+          socket =
+            socket
+            |> show_alert("File has not finished uploading")
+          {:noreply, socket}
       end
     end
 
@@ -213,7 +227,8 @@ defmodule EcommercewebsiteWeb.ShopLive do
                   socket =
                     reset_socket(socket, socket.assigns.userinfo.id)
                     |> assign_form(Items.changeset(%Items{}), "items", :items_form)
-                  {:noreply, put_flash(socket, :info, "File #{client_name} has been uploaded!")}
+                    |> show_alert("File #{client_name} has been uploaded!")
+                  {:noreply, socket}
                 {:error, _}->
                   {:noreply, socket}
               end
@@ -232,7 +247,8 @@ defmodule EcommercewebsiteWeb.ShopLive do
                 socket =
                   reset_socket(socket, socket.assigns.userinfo.id)
                   |> assign_form(Items.changeset(%Items{}), "items", :items_form)
-                {:noreply, put_flash(socket, :info, "Post has been updated!")}
+                  |> show_alert("Post has been updated!")
+                {:noreply, socket}
               {:error, _}->
                 {:noreply, socket}
             end
@@ -276,9 +292,11 @@ defmodule EcommercewebsiteWeb.ShopLive do
         case Shop.delete_item(id) do
           {:ok, message} ->
             delete_file(file_path)
-            put_flash(socket, :info, message)
+            socket
+            |> show_alert(message)
           {:error, message} ->
-            put_flash(socket, :error, message)
+            socket
+            |> show_alert(message)
         end
       {:noreply, reset_socket(socket, socket.assigns.userinfo.id)}
     end
@@ -290,14 +308,17 @@ defmodule EcommercewebsiteWeb.ShopLive do
         {:ok, _} ->
           current_cart = Shop.get_cart(socket.assigns.current_user.id)
           current_cart_posts = Shop.get_items_from_cart(current_cart)
-          IO.inspect(current_cart_posts)
           socket =
             socket
             |> assign(:current_cart, current_cart)
             |> assign(:cart_posts, current_cart_posts)
-          {:noreply, put_flash(socket, :info, "Successfully added #{post.item_name} to cart")}
+            |> show_alert("Successfully added #{post.item_name} to cart")
+          {:noreply, socket}
         {:error, _} ->
-          {:noreply, put_flash(socket, :error, "Could not add #{post.item_name} to cart")}
+          socket =
+            socket
+            |> show_alert("Could not add #{post.item_name} to cart")
+          {:noreply, socket}
       end
     end
 
@@ -327,4 +348,13 @@ defmodule EcommercewebsiteWeb.ShopLive do
           {:error, "File deletion failed: #{reason}"}
       end
     end
+
+    defp show_alert(socket, message) do
+      socket
+        |> assign(:show_alert, true)
+        |> assign(:alert_message, message)
+    end
+
+
+
 end
