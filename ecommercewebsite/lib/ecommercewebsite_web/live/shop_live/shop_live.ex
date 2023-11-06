@@ -24,9 +24,11 @@ defmodule EcommercewebsiteWeb.ShopLive do
         socket =
           socket
           |> reset_socket(shop_id)
+          |> assign(:drawer_opened, false)
           |> assign(:show_alert, false)
           |> assign(:alert_message, "")
           |> assign(:current_cart, cart)
+          |> assign(:cart_length, length(cart))
           |> assign(:cart_posts, post)
           |> assign(:show_edit_button, socket.assigns.current_user.id == userinfo.user_id)
           |> assign(:edit_mode, false)
@@ -63,28 +65,6 @@ defmodule EcommercewebsiteWeb.ShopLive do
         |> assign(:current_posts, min(length(posts), @posts_on_each_page))
         |> assign(:total_posts, length(posts))
       socket
-    end
-
-    def handle_event("toggle_edit_mode", _params, socket) do
-      socket =
-        if socket.assigns.edit_mode do
-          socket
-        else
-          shoptitle_changeset = UserInfo.shop_title_changeset(%UserInfo{}, %{shop_title: socket.assigns.userinfo.shop_title})
-          shopdescription_changeset = UserInfo.shop_description_changeset(%UserInfo{}, %{shop_description: socket.assigns.userinfo.shop_description})
-          socket
-            |> assign_form(shoptitle_changeset, "shoptitle", :shoptitle_form)
-            |> assign_form(shopdescription_changeset, "shopdescription", :shopdescription_form)
-        end
-      socket =
-        socket
-        |> assign(:edit_mode, not socket.assigns.edit_mode)
-      {:noreply, socket}
-    end
-
-    def handle_event("dismiss_alert", _params, socket) do
-      socket = assign(socket, :show_alert, false)
-      {:noreply, socket}
     end
 
     def handle_event("validate_shop_title", %{"shoptitle" => userinfo}, socket) do
@@ -311,6 +291,7 @@ defmodule EcommercewebsiteWeb.ShopLive do
           socket =
             socket
             |> assign(:current_cart, current_cart)
+            |> assign(:cart_length, length(current_cart))
             |> assign(:cart_posts, current_cart_posts)
             |> show_alert("Successfully added #{post.item_name} to cart")
           {:noreply, socket}
@@ -320,6 +301,74 @@ defmodule EcommercewebsiteWeb.ShopLive do
             |> show_alert("Could not add #{post.item_name} to cart")
           {:noreply, socket}
       end
+    end
+
+    def handle_event("adjust_cart_quantity", %{"increment" => increment, "item_id" => item_id}, socket) do
+      increment = String.to_integer(increment)
+      item_id = String.to_integer(item_id)
+      message = ""
+      socket = case Enum.find(socket.assigns.current_cart, fn map -> map.item_id == item_id end) do
+        nil ->
+          IO.puts("No item in the cart with this id")
+          socket
+        map ->
+          updated_item_in_cart = Map.update!(map, :quantity, &(&1 + increment))
+          updated_cart =
+          if updated_item_in_cart.quantity <= 0 do
+            updated_cart = case Shop.delete_cart(updated_item_in_cart.id) do
+              {:ok, _} ->
+                message = "Removed from cart"
+                updated_cart = Enum.reject(socket.assigns.current_cart, fn m -> m == map end)
+              {:error, _} ->
+                message = "Could not remove from cart"
+                socket.assigns.current_cart
+              end
+            IO.inspect(updated_cart)
+          else
+            attrs = %{
+              "quantity" => updated_item_in_cart.quantity,
+              "item_id" => updated_item_in_cart.item_id,
+              "user_id" => updated_item_in_cart.user_id
+            }
+            updated_cart = case Shop.update_cart(attrs, updated_item_in_cart.id) do
+              {:ok, _} ->
+                updated_cart = Enum.map(socket.assigns.current_cart, fn m -> if m == map, do: updated_item_in_cart, else: m end)
+              {:error, _} ->
+                message = "Could not update quantity"
+                socket.assigns.current_cart
+              end
+          end
+
+          socket
+            |> assign(:drawer_opened, true)
+            |> assign(:current_cart, updated_cart)
+            |> assign(:cart_length, length(updated_cart))
+
+      end
+
+      {:noreply, show_alert(socket, message)}
+    end
+
+    def handle_event("toggle_edit_mode", _params, socket) do
+      socket =
+        if socket.assigns.edit_mode do
+          socket
+        else
+          shoptitle_changeset = UserInfo.shop_title_changeset(%UserInfo{}, %{shop_title: socket.assigns.userinfo.shop_title})
+          shopdescription_changeset = UserInfo.shop_description_changeset(%UserInfo{}, %{shop_description: socket.assigns.userinfo.shop_description})
+          socket
+            |> assign_form(shoptitle_changeset, "shoptitle", :shoptitle_form)
+            |> assign_form(shopdescription_changeset, "shopdescription", :shopdescription_form)
+        end
+      socket =
+        socket
+        |> assign(:edit_mode, not socket.assigns.edit_mode)
+      {:noreply, socket}
+    end
+
+    def handle_event("dismiss_alert", _params, socket) do
+      socket = assign(socket, :show_alert, false)
+      {:noreply, socket}
     end
 
     defp assign_form(socket, %Ecto.Changeset{} = changeset, name, form_name) do
@@ -350,11 +399,13 @@ defmodule EcommercewebsiteWeb.ShopLive do
     end
 
     defp show_alert(socket, message) do
-      socket
+      if message != "" do
+        socket
         |> assign(:show_alert, true)
         |> assign(:alert_message, message)
+      else
+        socket
+      end
     end
-
-
 
 end

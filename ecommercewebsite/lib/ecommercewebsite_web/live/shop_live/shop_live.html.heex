@@ -4,6 +4,7 @@
     </head>
     <body>
     <div class = "relative w-full h-2/5 flex justify-center bg-black">
+
         <%= if @show_edit_button do %>
             <div class="absolute justify-center items-center top-0 right-0 bg-black w-16 h-8 m-3 p-1 text-white rounded-full">
                 <span class="items-start align-top m-1 text-sm font-bold text-white dark:text-gray-300">Edit</span>
@@ -20,12 +21,22 @@
             </div>
         <% end %>
         <div class="">
-            <button class="absolute justify-center text-center items-center top-0 left-0 bg-white font-bold text-black flex m-2 p-4 min-w-24 max-w-48 h-10 rounded-lg" type="button" data-drawer-backdrop="false" data-drawer-target="drawer" data-drawer-show="drawer" aria-controls="drawer">
-            Cart
+            <button class="absolute justify-center text-center items-center top-0 left-0 font-bold text-black flex m-2 p-4 min-w-24 max-w-48 h-10 rounded-full" type="button" data-drawer-backdrop="false" data-drawer-target="drawer" data-drawer-show="drawer" aria-controls="drawer">
+                <div class="relative py-2">
+                    <div class="t-0 absolute left-3">
+                        <%= if @cart_length > 0 do %>
+                        <p class="flex h-2 w-2 items-center justify-center rounded-full bg-red-500 p-3 text-xs text-white"><%= @cart_length %></p>
+                        <% end %>
+                    </div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="#ffffff" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" class="file: mt-4 h-6 w-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                </svg>
+                </div>
             </button>
             </div>
         
-            <div id="drawer" class="fixed top-0 left-0 z-40 h-screen w-[30%] p-4 overflow-y-auto transition-transform -translate-x-full bg-white dark:bg-gray-800 border" tabindex="-1" aria-labelledby="drawer-label">
+            <div id="drawer" class={if @drawer_opened, do: "fixed top-0 left-0 z-40 h-screen w-[30%] p-4 overflow-y-auto transtion-transform bg-white dark:bg-gray-800 border", else: "fixed top-0 left-0 z-40 h-screen w-[30%] p-4 overflow-y-auto transtion-transform -translate-x-full bg-white dark:bg-gray-800 border"} tabindex="-1" aria-labelledby="drawer-label">
+
             <h5 id="drawer-label" class="w-full items-center inline-flex mb-4 text-base font-semibold text-gray-500 dark :text-gray-400">
                 YOUR CART
             </h5>
@@ -37,7 +48,7 @@
             </button>
             <div class="overflow-y-auto max-h-[80%]">
                 <%= for {cart, post} <- Enum.zip(@current_cart, @cart_posts) do %>
-                <div class="flex flex-row w-[90%] items-center mt-6 bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
+                <div class="relative flex flex-row w-[90%] items-center mt-6 bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                     <img class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-l-lg" src={post.img_file_name}>
                     <div class="flex flex-col justify-between p-4 leading-normal">
                         <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white break-all"><%= post.item_name %></h5>
@@ -45,11 +56,11 @@
                         <div class="flex flex-row items-center gap-10">
                             <div class="flex w-32 h-1/2">
                                 <div class="flex flex-row h-10 w-full rounded-lg relative bg-transparent">
-                                <button data-action="decrement" class=" bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-l cursor-pointer outline-none">
+                                <button phx-click="adjust_cart_quantity" phx-value-item_id={cart.item_id} phx-value-increment="-1" class=" bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-l cursor-pointer outline-none">
                                     <span class="m-auto text-2xl font-thin">−</span>
                                 </button>
-                                <input class="outline-none focus:outline-none text-center w-full bg-gray-300 font-semibold text-md hover:text-black focus:text-black  md:text-basecursor-default flex items-center text-gray-700" value="1" />
-                                <button data-action="increment" class="bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-r cursor-pointer">
+                                <input class="outline-none focus:outline-none text-center w-full bg-gray-300 font-semibold text-md hover:text-black focus:text-black  md:text-basecursor-default flex items-center text-gray-700" name="custom-input-number" value={cart.quantity} />
+                                <button phx-click="adjust_cart_quantity" phx-value-item_id={cart.item_id} phx-value-increment="1" class="bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-r cursor-pointer">
                                 <span class="m-auto text-2xl font-thin">+</span>
                                 </button>
                                 </div>
@@ -69,6 +80,7 @@
             </svg></a>
             </div>
         </div>
+
         <div class = "w-4/5">
         <div class = "w-full justify-center flex break-all" >
             <h1 class = "w-full flex text-white font-semibold text-8xl justify-center items-center align-middle text-center mt-64">

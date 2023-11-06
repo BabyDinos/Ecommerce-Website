@@ -71,7 +71,7 @@ defmodule EcommercewebsiteWeb.UserRegistrationLive do
       |> assign_username_form(username_changeset)
       |> assign_register_form(user_changeset)
 
-    {:ok, socket, temporary_assigns: [form: nil]}
+    {:ok, socket}
   end
 
   def handle_event("validate_username", %{"userinfo" => user_params}, socket) do
