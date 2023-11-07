@@ -3,7 +3,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.0.0/flowbite.min.css" rel="stylesheet" />
     </head>
     <body>
-    <div class = "relative w-full h-2/5 flex justify-center bg-black">
+    <div class = "relative w-full h-full flex justify-center bg-black">
 
         <%= if @show_edit_button do %>
             <div class="absolute justify-center items-center top-0 right-0 bg-black w-16 h-8 m-3 p-1 text-white rounded-full">
@@ -40,7 +40,7 @@
             <h5 id="drawer-label" class="w-full items-center inline-flex mb-4 text-base font-semibold text-gray-500 dark :text-gray-400">
                 YOUR CART
             </h5>
-            <button type="button" data-drawer-hide="drawer" aria-controls="drawer" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 right-2.5 inline-flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white" >
+            <button phx-click="close_drawer" type="button" data-drawer-hide="drawer" aria-controls="drawer" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 right-2.5 inline-flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white" >
                 <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                 </svg>
@@ -59,13 +59,13 @@
                                 <button phx-click="adjust_cart_quantity" phx-value-item_id={cart.item_id} phx-value-increment="-1" class=" bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-l cursor-pointer outline-none">
                                     <span class="m-auto text-2xl font-thin">−</span>
                                 </button>
-                                <input class="outline-none focus:outline-none text-center w-full bg-gray-300 font-semibold text-md hover:text-black focus:text-black  md:text-basecursor-default flex items-center text-gray-700" name="custom-input-number" value={cart.quantity} />
+                                <h1 class="outline-none focus:outline-none text-center w-full bg-gray-300 font-semibold text-md hover:text-black focus:text-black  md:text-basecursor-default flex items-center text-gray-700 justify-center" name="custom-input-number"><%= cart.quantity %></h1>
                                 <button phx-click="adjust_cart_quantity" phx-value-item_id={cart.item_id} phx-value-increment="1" class="bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-r cursor-pointer">
                                 <span class="m-auto text-2xl font-thin">+</span>
                                 </button>
                                 </div>
                             </div>
-                            <p class="font-normal text-gray-700 dark:text-gray-400">$<%= post.price %></p>  
+                            <p class="font-normal text-gray-700 dark:text-gray-400">$<%= cart.quantity * post.price %></p>  
                         </div>
 
                     </div>
@@ -75,7 +75,7 @@
 
             
             <div class="flex absolute inset-x-0 bottom-8 justify-center items-center text-center">
-                <a href="#" class="w-full inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Check Out<svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <a href="/cart" class="w-full inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Continue to Checkout<svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
             </svg></a>
             </div>
@@ -120,7 +120,7 @@
 
         </div>
     </div>
-    <div class = "w-full h-1/6 flex justify-center">
+    <div class = "w-full h-1/2 flex justify-center">
         <h1 class = "font-semibold text-8xl text-center mt-64">
         Shop Our Collections
         </h1>
@@ -153,6 +153,7 @@
         <div class="relative flex flex-col m-0">
             <div class = "w-full h-full relative flex items-center justify-center border-solid border">
                 <%= if @edit_mode do %>
+                    <h1 class="text-lg font-medium text-gray-900 absolute top-0 left-0 ml-4"> Stock: <%= post.quantity %></h1>
                     <button phx-click={show_modal("update-form-#{post.id}")} class ="mr-14 inline-flex items-center h-10 px-5 text-indigo-100 transition-colors duration-150 bg-green-500 focus:outline-none hover:bg-green-600 absolute top-0 right-0 text-2xl rounded transform translate-x-50 -translate-y-0" >
                         <img class="w-4 h-4" src="/images/edit.svg" alt="edit">
                     </button>
@@ -187,7 +188,7 @@
                         <div class = "flex h-3/6 max-w-full">
                             <img src = {post.img_file_name} class = "object-contain h-full w-full rounded-t-lg p-6"/>
                         </div>
-                        <div class="justify-between flex flex-col lg:w-1/2 w-full h-[40%] lg:pl-10 lg:py-6 mt-6 lg:mt-0">
+                        <div class="justify-between flex flex-col lg:w-1/2 w-full h-[50%] lg:pl-10 lg:py-6 mt-6 lg:mt-0">
                             <div class="self-start">
                                 <h2 class="text-sm title-font text-gray-500 tracking-widest"><%= @shop_title %></h2>
                                 <h1 class="text-gray-900 text-3xl title-font font-medium mb-1"><%= post.item_name %></h1>
@@ -195,7 +196,7 @@
                             </div>
 
                             <div class="self-end flex w-full mt-6">
-                                <span class="title-font font-medium text-2xl text-gray-900">$<%= post.price %></span>
+                                <span class="text-lg font-medium text-gray-900">$<%= post.price %></span>
                                 <button phx-click="add_to_cart" phx-value-item_id={post.id} class="flex h-full ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">Add to Cart</button>
                             </div>
                         </div>

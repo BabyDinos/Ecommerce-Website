@@ -65,6 +65,24 @@ defmodule Ecommercewebsite.Shop do
       |> Repo.update()
   end
 
+  def checkout_cart(user_id) do
+    query =
+      from i in Cart,
+      where: i.user_id == ^user_id,
+      select: i
+    Repo.delete_all(query)
+  end
+
+  def update_stock(carts) do
+    Enum.map(carts, fn cart_item ->
+      post = get_item(cart_item.item_id)
+      updated_item = Items.changeset(post, %{quantity: post.quantity - cart_item.quantity})
+      IO.inspect(updated_item)
+      Repo.update(updated_item)
+    end)
+
+  end
+
   def delete_cart(cart_id) do
     Repo.get!(Cart, cart_id)
       |> Repo.delete()

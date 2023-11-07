@@ -284,69 +284,92 @@ defmodule EcommercewebsiteWeb.ShopLive do
     def handle_event("add_to_cart", %{"item_id" => item_id}, socket) do
       cart = %{"item_id" => item_id, "user_id" => socket.assigns.current_user.id, "quantity" => 1}
       post = Shop.get_item(item_id)
-      case Shop.upload_cart(cart) do
-        {:ok, _} ->
-          current_cart = Shop.get_cart(socket.assigns.current_user.id)
-          current_cart_posts = Shop.get_items_from_cart(current_cart)
-          socket =
-            socket
-            |> assign(:current_cart, current_cart)
-            |> assign(:cart_length, length(current_cart))
-            |> assign(:cart_posts, current_cart_posts)
-            |> show_alert("Successfully added #{post.item_name} to cart")
-          {:noreply, socket}
-        {:error, _} ->
-          socket =
-            socket
-            |> show_alert("Could not add #{post.item_name} to cart")
-          {:noreply, socket}
+      if post.quantity <= 0 do
+        socket =
+          socket
+          |> show_alert("Could not add #{post.item_name} to cart: Not enough stock")
+        {:noreply, socket}
+      else
+        case Shop.upload_cart(cart) do
+          {:ok, _} ->
+            current_cart = Shop.get_cart(socket.assigns.current_user.id)
+            current_cart_posts = Shop.get_items_from_cart(current_cart)
+            socket =
+              socket
+              |> assign(:current_cart, current_cart)
+              |> assign(:cart_length, length(current_cart))
+              |> assign(:cart_posts, current_cart_posts)
+              |> show_alert("Successfully added #{post.item_name} to cart")
+            {:noreply, socket}
+          {:error, _} ->
+            socket =
+              socket
+              |> show_alert("Could not add #{post.item_name} to cart")
+            {:noreply, socket}
+        end
       end
     end
 
     def handle_event("adjust_cart_quantity", %{"increment" => increment, "item_id" => item_id}, socket) do
       increment = String.to_integer(increment)
       item_id = String.to_integer(item_id)
-      message = ""
+      item_stock = Shop.get_item(item_id).quantity
       socket = case Enum.find(socket.assigns.current_cart, fn map -> map.item_id == item_id end) do
         nil ->
           IO.puts("No item in the cart with this id")
           socket
         map ->
           updated_item_in_cart = Map.update!(map, :quantity, &(&1 + increment))
-          updated_cart =
-          if updated_item_in_cart.quantity <= 0 do
-            updated_cart = case Shop.delete_cart(updated_item_in_cart.id) do
-              {:ok, _} ->
-                message = "Removed from cart"
-                updated_cart = Enum.reject(socket.assigns.current_cart, fn m -> m == map end)
-              {:error, _} ->
-                message = "Could not remove from cart"
-                socket.assigns.current_cart
+          {message, updated_cart} =
+            case updated_item_in_cart.quantity do
+              q when q <= 0 ->
+                {message, cart} = case Shop.delete_cart(updated_item_in_cart.id) do
+                  {:ok, _} ->
+                    message = "Removed from cart"
+                    updated_cart = Enum.reject(socket.assigns.current_cart, fn m -> m == map end)
+                    {message, updated_cart}
+                  {:error, _} ->
+                    message = "Could not remove from cart"
+                    {message, socket.assigns.current_cart}
+                  end
+                {message, cart}
+              q when q > item_stock ->
+                message = "There is not enough stock"
+                {message, socket.assigns.current_cart}
+              _ ->
+              attrs = %{
+                "quantity" => updated_item_in_cart.quantity,
+                "item_id" => updated_item_in_cart.item_id,
+                "user_id" => updated_item_in_cart.user_id
+              }
+              case Shop.update_cart(attrs, updated_item_in_cart.id) do
+                {:ok, _} ->
+                  updated_cart = Enum.map(socket.assigns.current_cart, fn m -> if m == map, do: updated_item_in_cart, else: m end)
+                  {"", updated_cart}
+                {:error, _} ->
+                  message = "Could not update quantity"
+                  {message, socket.assigns.current_cart}
               end
-            IO.inspect(updated_cart)
-          else
-            attrs = %{
-              "quantity" => updated_item_in_cart.quantity,
-              "item_id" => updated_item_in_cart.item_id,
-              "user_id" => updated_item_in_cart.user_id
-            }
-            updated_cart = case Shop.update_cart(attrs, updated_item_in_cart.id) do
-              {:ok, _} ->
-                updated_cart = Enum.map(socket.assigns.current_cart, fn m -> if m == map, do: updated_item_in_cart, else: m end)
-              {:error, _} ->
-                message = "Could not update quantity"
-                socket.assigns.current_cart
-              end
-          end
+            end
 
+          post = Shop.get_items_from_cart(updated_cart)
           socket
             |> assign(:drawer_opened, true)
             |> assign(:current_cart, updated_cart)
+            |> assign(:cart_posts, post)
             |> assign(:cart_length, length(updated_cart))
+            |> show_alert(message)
 
       end
 
-      {:noreply, show_alert(socket, message)}
+      {:noreply, socket}
+    end
+
+    def handle_event("close_drawer", _params, socket) do
+      socket =
+        socket
+        |> assign(:drawer_opened, false)
+      {:noreply, socket}
     end
 
     def handle_event("toggle_edit_mode", _params, socket) do
