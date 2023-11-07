@@ -1,9 +1,10 @@
 defmodule RootHelper do
-
+  alias Ecommercewebsite.Accounts
   defmacro __using__(_opts) do
     quote do
-
-      def handle_event("test", _params, socket) do
+      def handle_event("validate_shop_search", %{"shop_title" => shop_title}, socket) do
+        Accounts.search_shops(shop_title)
+        IO.inspect("validated_shop_search")
         {:noreply, socket}
       end
 

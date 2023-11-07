@@ -394,4 +394,9 @@ defmodule Ecommercewebsite.Accounts do
     end
   end
 
+  def search_shops(shop_title) do
+    from(userinfo in UserInfo, where: ilike(userinfo.shop_title, ^"%#{shop_title}%"))
+    |> Repo.all()
+  end
+
 end

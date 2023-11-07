@@ -3,10 +3,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.0.0/flowbite.min.css" rel="stylesheet" />
     </head>
     <body>
-    <div class = "relative w-full h-full flex justify-center bg-black">
+    <div class = "w-full h-auto flex justify-center bg-black pb-64">
 
         <%= if @show_edit_button do %>
-            <div class="absolute justify-center items-center top-0 right-0 bg-black w-16 h-8 m-3 p-1 text-white rounded-full">
+            <div class="absolute justify-center items-center right-0 bg-black w-16 h-8 m-3 p-1 text-white rounded-full">
                 <span class="items-start align-top m-1 text-sm font-bold text-white dark:text-gray-300">Edit</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                 <%= if @edit_mode do %>
@@ -20,8 +20,8 @@
 
             </div>
         <% end %>
-        <div class="">
-            <button class="absolute justify-center text-center items-center top-0 left-0 font-bold text-black flex m-2 p-4 min-w-24 max-w-48 h-10 rounded-full" type="button" data-drawer-backdrop="false" data-drawer-target="drawer" data-drawer-show="drawer" aria-controls="drawer">
+        <div class="h-auto">
+            <button class="absolute justify-center text-center items-center left-0 font-bold text-black flex m-2 p-4 min-w-24 max-w-48 h-10 rounded-full" type="button" data-drawer-backdrop="false" data-drawer-target="drawer" data-drawer-show="drawer" aria-controls="drawer">
                 <div class="relative py-2">
                     <div class="t-0 absolute left-3">
                         <%= if @cart_length > 0 do %>
@@ -120,7 +120,7 @@
 
         </div>
     </div>
-    <div class = "w-full h-1/2 flex justify-center">
+    <div class = "w-full h-auto flex justify-center pb-32">
         <h1 class = "font-semibold text-8xl text-center mt-64">
         Shop Our Collections
         </h1>

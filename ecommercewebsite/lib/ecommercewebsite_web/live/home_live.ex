@@ -18,4 +18,9 @@ defmodule EcommercewebsiteWeb.HomeLive do
       {:ok, socket}
     end
 
+    def handle_event("validate_shop_search", _params, socket) do
+      # Accounts.search_shops(shop_title)
+      {:noreply, socket}
+    end
+
   end
