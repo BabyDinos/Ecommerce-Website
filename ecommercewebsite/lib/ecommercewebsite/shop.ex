@@ -77,7 +77,6 @@ defmodule Ecommercewebsite.Shop do
     Enum.map(carts, fn cart_item ->
       post = get_item(cart_item.item_id)
       updated_item = Items.changeset(post, %{quantity: post.quantity - cart_item.quantity})
-      IO.inspect(updated_item)
       Repo.update(updated_item)
     end)
 

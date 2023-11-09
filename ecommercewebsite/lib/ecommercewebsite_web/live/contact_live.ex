@@ -1,4 +1,4 @@
-defmodule EcommercewebsiteWeb.ShopSearchLive do
+defmodule EcommercewebsiteWeb.ContactLive do
   use EcommercewebsiteWeb, :live_view
 
   def render(assigns) do
@@ -7,7 +7,9 @@ defmodule EcommercewebsiteWeb.ShopSearchLive do
       <head>
       </head>
       <body>
-       Search
+        <h1 class = "w-full h-full text-center text-xl bg-white text-black">
+          Contact
+        </h1>
       </body>
     """
     end
@@ -15,4 +17,5 @@ defmodule EcommercewebsiteWeb.ShopSearchLive do
     def mount(_params, _session, socket) do
       {:ok, socket}
     end
-end
+
+  end

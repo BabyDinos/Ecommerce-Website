@@ -83,7 +83,7 @@
 
         <div class = "w-4/5">
         <div class = "w-full justify-center flex break-all" >
-            <h1 class = "w-full flex text-white font-semibold text-8xl justify-center items-center align-middle text-center mt-64">
+            <h1 class = "w-full flex text-white font-semibold font-mono text-8xl justify-center items-center align-middle text-center mt-64">
             <%= @shop_title %>
             </h1>
         </div>
@@ -100,7 +100,7 @@
         </div>
 
         <div class = "w-full justify-center flex break-all" >
-            <h2 class = "w-full flex text-white font-semibold text-5xl justify-center items-center align-middle text-center mt-64">
+            <h2 class = "w-full flex text-white font-semibold font-sans text-5xl justify-center items-center align-middle text-center mt-64">
             <%= @shop_description %>
             </h2>
         </div>
@@ -121,10 +121,29 @@
         </div>
     </div>
     <div class = "w-full h-auto flex justify-center pb-32">
-        <h1 class = "font-semibold text-8xl text-center mt-64">
+        <h1 class = "font-semibold font-mono text-8xl text-center mt-64">
         Shop Our Collections
         </h1>
     </div>
+    <div class="flex relative items-end justify-end p-4">
+ 
+        <div class="relative hidden md:block mr-16 justify-start">
+
+            <form role="search" phx-submit="search">
+                <input type="text" id="search-input" value={@search_input} name="search[query]" class="block w-125 p-2 pl-5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search..." >
+            </form>
+        </div>
+
+        <div class="flex justify-end">
+            <div class="absolute inset-y-0 right-0 mr-10 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+                <span class="sr-only">Search icon</span>
+            </div>
+        </div>
+    </div>
+
     <div class = "w-3/5 h-3/8 flex mb-16 items-start justify-center">
         <%= if @edit_mode do %>
         <.button phx-click={show_modal("upload-form")} class = "w-2/6 h-1/6 font-medium text-6xl">Upload New Item</.button>
@@ -146,68 +165,77 @@
             </.modal>
         <% end %>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mr-8 ml-8">
-        <% posts = Enum.slice(@posts, (@page_number) * @posts_on_each_page, (@posts_on_each_page)) %>
-        <% initial_data = Enum.slice(@form_data, (@page_number) * @posts_on_each_page, (@posts_on_each_page)) %>
-        <%= for {post, form_data} <- Enum.zip(posts, initial_data) do %>
-        <div class="relative flex flex-col m-0">
-            <div class = "w-full h-full relative flex items-center justify-center border-solid border">
-                <%= if @edit_mode do %>
-                    <h1 class="text-lg font-medium text-gray-900 absolute top-0 left-0 ml-4"> Stock: <%= post.quantity %></h1>
-                    <button phx-click={show_modal("update-form-#{post.id}")} class ="mr-14 inline-flex items-center h-10 px-5 text-indigo-100 transition-colors duration-150 bg-green-500 focus:outline-none hover:bg-green-600 absolute top-0 right-0 text-2xl rounded transform translate-x-50 -translate-y-0" >
-                        <img class="w-4 h-4" src="/images/edit.svg" alt="edit">
-                    </button>
-                    <button class ="inline-flex items-center h-10 px-5 text-indigo-100 transition-colors duration-150 bg-red-500 focus:outline-none hover:bg-red-600 absolute top-0 right-0 text-2xl rounded transform translate-x-50 -translate-y-0" phx-click="delete_post"
-                    phx-value-id={post.id} phx-value-file_path={post.img_file_name} data-confirm="Are you sure you want to delete this post?">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16"> <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/> <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/> </svg>
-                    </button>
+    
+        <%= if @current_posts == 0 do %>
+            <div class="w-full h-full text-center">
+                <h1 class="text-xl font-bold">No posts right now, check back later</h1>
+            </div>
+        <% else %>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mr-8 ml-8">
+            <% posts = Enum.slice(@posts, (@page_number) * @posts_on_each_page, (@posts_on_each_page)) %>
+            <% initial_data = Enum.slice(@form_data, (@page_number) * @posts_on_each_page, (@posts_on_each_page)) %>
+            <%= for {post, form_data} <- Enum.zip(posts, initial_data) do %>
+            <div class="relative flex flex-col m-0">
+                <div class = "w-full h-full relative flex items-center justify-center border-solid border">
+                    <%= if @edit_mode do %>
+                        <h1 class="text-lg font-medium text-gray-900 absolute top-0 left-0 ml-4"> Stock: <%= post.quantity %></h1>
+                        <button phx-click={show_modal("update-form-#{post.id}")} class ="mr-14 inline-flex items-center h-10 px-5 text-indigo-100 transition-colors duration-150 bg-green-500 focus:outline-none hover:bg-green-600 absolute top-0 right-0 text-2xl rounded transform translate-x-50 -translate-y-0" >
+                            <img class="w-4 h-4" src="/images/edit.svg" alt="edit">
+                        </button>
+                        <button class ="inline-flex items-center h-10 px-5 text-indigo-100 transition-colors duration-150 bg-red-500 focus:outline-none hover:bg-red-600 absolute top-0 right-0 text-2xl rounded transform translate-x-50 -translate-y-0" phx-click="delete_post"
+                        phx-value-id={post.id} phx-value-file_path={post.img_file_name} data-confirm="Are you sure you want to delete this post?">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16"> <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/> <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/> </svg>
+                        </button>
 
-                    <.modal id={"update-form-#{post.id}"}>
-                        <.form for={@items_form} phx-change="validate_old_item" phx-submit="update_item"
-                        class = "mt-[5%] ml-[5%] font-medium text-6xl w-3/5" enctype="multipart/form-data">
-                            <.input field={@items_form[:old_img_file_name]} value = {post.img_file_name}  class="hidden"/>
-                            <.input field={@items_form[:id]} value = {post.id}  class="hidden"/>
-                            <.input field={@items_form[:item_name]} value={form_data["item_name"]} type="text" label="Item Name" />
-                            <.input field={@items_form[:description]} value={form_data["description"]} type="textarea" label="Description" />
-                            <.input field={@items_form[:price]} value={form_data["price"]} type="number" label="Price" />
-                            <.input field={@items_form[:quantity]} value={form_data["quantity"]} type="number" label="Quantity" />
-                            <.live_file_input upload={@uploads.image} class="w-full text-xl mb-5"/>
-                            <%= for entry <- @uploads.image.entries do %>
-                            <.live_img_preview entry={entry} />
-                            <% end %>
-                            <div class = "justify-end w-full flex">
-                            <button phx-click={hide_modal("update-form-#{post.id}")} class = "mt-5 text-2xl text-black bg-green-600 p-4 rounded-md">Submit</button>
+                        <.modal id={"update-form-#{post.id}"}>
+                            <.form for={@items_form} phx-change="validate_old_item" phx-submit="update_item"
+                            class = "mt-[5%] ml-[5%] font-medium text-6xl w-3/5" enctype="multipart/form-data">
+                                <.input field={@items_form[:old_img_file_name]} value = {post.img_file_name}  class="hidden"/>
+                                <.input field={@items_form[:id]} value = {post.id}  class="hidden"/>
+                                <.input field={@items_form[:item_name]} value={form_data["item_name"]} type="text" label="Item Name" />
+                                <.input field={@items_form[:description]} value={form_data["description"]} type="textarea" label="Description" />
+                                <.input field={@items_form[:price]} value={form_data["price"]} type="number" label="Price" />
+                                <.input field={@items_form[:quantity]} value={form_data["quantity"]} type="number" label="Quantity" />
+                                <.live_file_input upload={@uploads.image} class="w-full text-xl mb-5"/>
+                                <%= for entry <- @uploads.image.entries do %>
+                                <.live_img_preview entry={entry} />
+                                <% end %>
+                                <div class = "justify-end w-full flex">
+                                <button phx-click={hide_modal("update-form-#{post.id}")} class = "mt-5 text-2xl text-black bg-green-600 p-4 rounded-md">Submit</button>
+                                </div>
+                            </.form>
+                        </.modal>
+                    <% end %>
+                    <div class="w-full h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                        <section class="w-full h-full text-gray-700 body-font overflow-hidden bg-white">
+                        <div class="w-full h-full container px-5 pt-24 pb-12 mx-auto items-start">
+                            <div class="h-full lg:w-4/5 mx-auto flex flex-wrap">
+                            <div class = "flex h-3/6 max-w-full">
+                                <img src = {post.img_file_name} class = "object-contain h-full w-full rounded-t-lg p-6"/>
                             </div>
-                        </.form>
-                    </.modal>
-                <% end %>
-                <div class="w-full h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                    <section class="w-full h-full text-gray-700 body-font overflow-hidden bg-white">
-                    <div class="w-full h-full container px-5 pt-24 pb-12 mx-auto items-start">
-                        <div class="h-full lg:w-4/5 mx-auto flex flex-wrap">
-                        <div class = "flex h-3/6 max-w-full">
-                            <img src = {post.img_file_name} class = "object-contain h-full w-full rounded-t-lg p-6"/>
-                        </div>
-                        <div class="justify-between flex flex-col lg:w-1/2 w-full h-[50%] lg:pl-10 lg:py-6 mt-6 lg:mt-0">
-                            <div class="self-start">
-                                <h2 class="text-sm title-font text-gray-500 tracking-widest"><%= @shop_title %></h2>
-                                <h1 class="text-gray-900 text-3xl title-font font-medium mb-1"><%= post.item_name %></h1>
-                                <p class="leading-relaxed break-all"><%= post.description %></p>
-                            </div>
+                            <div class="justify-between flex flex-col lg:w-1/2 w-full h-[50%] lg:pl-10 lg:py-6 mt-6 lg:mt-0">
+                                <div class="self-start">
+                                    <h2 class="text-sm title-font text-gray-500 tracking-widest"><%= @shop_title %></h2>
+                                    <h1 class="text-gray-900 text-3xl title-font font-medium mb-1"><%= post.item_name %></h1>
+                                    <p class="leading-relaxed break-all"><%= post.description %></p>
+                                </div>
 
-                            <div class="self-end flex w-full mt-6">
-                                <span class="text-lg font-medium text-gray-900">$<%= post.price %></span>
-                                <button phx-click="add_to_cart" phx-value-item_id={post.id} class="flex h-full ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">Add to Cart</button>
+                                <div class="self-end flex w-full mt-6">
+                                    <span class="text-lg font-medium text-gray-900">$<%= post.price %></span>
+                                    <button phx-click="add_to_cart" phx-value-item_id={post.id} class="flex h-full ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">Add to Cart</button>
+                                </div>
+                            </div>
                             </div>
                         </div>
-                        </div>
+                        </section>
                     </div>
-                    </section>
                 </div>
             </div>
+            <% end %>
         </div>
         <% end %>
-    </div>
+        
+
 
     <div class="flex flex-col items-center mt-6">
         <!-- Help text -->

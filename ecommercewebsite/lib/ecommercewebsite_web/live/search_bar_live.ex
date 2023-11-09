@@ -36,6 +36,8 @@ defmodule EcommercewebsiteWeb.SearchBarLive do
                   class="block p-4 bg-slate-100 hover:bg-slate-300 focus:outline-none focus:bg-slate-300 focus:text-sky-800"
                 >
                   <%= result.username %>'s Shop
+                  <br/>
+                  <%= result.shop_title %>
                 </.link>
               </li>
             <% end %>
@@ -55,16 +57,19 @@ defmodule EcommercewebsiteWeb.SearchBarLive do
       {:ok, assign(socket, :search_results, [])}
     end
 
-    def handle_event("change", %{"search" => %{"query" => shop_title}}, socket) do
-      if shop_title == "" do
+    def handle_event("change", %{"search" => %{"query" => search_query}}, socket) do
+      if search_query == "" do
         socket =
           socket
           |> assign(:search_results, [])
         {:noreply, socket}
       else
+        shop_title_results = Accounts.search_shops_shop_title(search_query)
+        username_results = Accounts.search_shops_username(search_query)
+        search_results = Enum.uniq(Enum.concat(shop_title_results, username_results))
         socket =
           socket
-          |> assign(:search_results, Accounts.search_shops(shop_title))
+          |> assign(:search_results, search_results)
         {:noreply, socket}
 
       end

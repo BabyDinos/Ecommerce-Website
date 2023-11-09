@@ -390,12 +390,17 @@ defmodule Ecommercewebsite.Accounts do
       {:ok, userinfo} ->
         {:ok, userinfo}
       {:error, %Ecto.Changeset{}} ->
-        {:error, nil}
+        {:error, changeset}
     end
   end
 
-  def search_shops(shop_title) do
+  def search_shops_shop_title(shop_title) do
     from(userinfo in UserInfo, where: ilike(userinfo.shop_title, ^"%#{shop_title}%"))
+    |> Repo.all()
+  end
+
+  def search_shops_username(username) do
+    from(userinfo in UserInfo, where: ilike(userinfo.username, ^"%#{username}%"))
     |> Repo.all()
   end
 
