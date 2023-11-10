@@ -44,11 +44,13 @@ defmodule EcommercewebsiteWeb.CartLive do
             </div>
             <% end %>
           </div>
+        <%= if @cart_length > 0 do %>
         <div class="flex w-[20%] absolute bottom-14 justify-center items-center text-center">
           <button phx-click="checkout" class="w-full inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Check Out<svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
           </svg></button>
         </div>
+        <% end %>
 
 
       <%= if @show_alert  do %>
