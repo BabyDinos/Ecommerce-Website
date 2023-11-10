@@ -53,8 +53,6 @@ defmodule EcommercewebsiteWeb do
     quote do
       use Phoenix.LiveView,
         layout: {EcommercewebsiteWeb.Layouts, :app}
-      use RootHelper,
-        :handle_event
 
       unquote(html_helpers())
     end
