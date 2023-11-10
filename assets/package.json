@@ -1,5 +1,9 @@
 {
     "scripts": {
       "deploy": "cd .. && mix assets.deploy && rm -f _build/esbuild*"
+    },
+    "engines": {
+      "node": "20.9.0",
+      "npm": "10.1.0"
     }
   }
