@@ -1,14 +1,14 @@
   {
-    "name": "your-project-name",
+    "name": "ecommercewebsite",
     "version": "1.0.0",
-    "description": "Your project description",
+    "description": "ecommercewebsite",
     "main": "index.js",
     "scripts": {
       "build": "tailwindcss build styles.css -o output.css",
       "deploy": "cd .. && mix assets.deploy && rm -f _build/esbuild*"
     },
     "keywords": [],
-    "author": "Your Name",
+    "author": "Marcus Lau",
     "license": "MIT",
     "devDependencies": {
       "tailwindcss": "^2.2.19",
