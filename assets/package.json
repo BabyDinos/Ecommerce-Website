@@ -1,9 +1,12 @@
 {
-    "scripts": {
-      "deploy": "cd .. && mix assets.deploy && rm -f _build/esbuild*"
+    "devDependencies": {
+      "tailwindcss": "3.3.2"
     },
     "engines": {
       "node": "20.9.0",
       "npm": "10.1.0"
+    },
+    "scripts": {
+      "deploy": "cd .. && mix assets.deploy && rm -f _build/esbuild*"
     }
   }
