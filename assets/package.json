@@ -1,12 +1,18 @@
-{
-    "devDependencies": {
-      "tailwindcss": "3.3.2"
-    },
-    "engines": {
-      "node": "20.9.0",
-      "npm": "10.1.0"
-    },
+  {
+    "name": "your-project-name",
+    "version": "1.0.0",
+    "description": "Your project description",
+    "main": "index.js",
     "scripts": {
+      "build": "tailwindcss build styles.css -o output.css",
       "deploy": "cd .. && mix assets.deploy && rm -f _build/esbuild*"
+    },
+    "keywords": [],
+    "author": "Your Name",
+    "license": "MIT",
+    "devDependencies": {
+      "tailwindcss": "^2.2.19",
+      "postcss": "^8.4.7",
+      "autoprefixer": "^10.4.0"
     }
   }
