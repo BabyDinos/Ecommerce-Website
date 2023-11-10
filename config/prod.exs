@@ -30,4 +30,8 @@ config :ecommercewebsite, Ecommercewebsite.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: System.get_env("DATABASE_URL"),
   ssl: true,
+  username: "681e67ff-f1b6-4f01-9f4a-d2d2d1aba616-user",
+  password: "pw-4690b728-03d8-44ba-af7b-abb0e9634401",
+  hostname: "postgres-free-tier-v2020.gigalixir.com",
+  database: "681e67ff-f1b6-4f01-9f4a-d2d2d1aba616",
   pool_size: 2 # Free tier db only allows 4 connections. Rolling deploys need pool_size*(n+1) connections where n is the number of app replicas.
