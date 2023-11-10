@@ -169,7 +169,6 @@ defmodule EcommercewebsiteWeb.ShopLive do
             end
 
           [] ->
-            IO.puts("No files uploaded")
             {:noreply, socket}
           end
       _ ->
@@ -214,7 +213,6 @@ defmodule EcommercewebsiteWeb.ShopLive do
             end
 
           [] ->
-            IO.puts("No files uploaded")
             {:noreply, socket}
           end
       _ ->
@@ -316,7 +314,6 @@ defmodule EcommercewebsiteWeb.ShopLive do
     item_stock = Shop.get_item(item_id).quantity
     socket = case Enum.find(socket.assigns.current_cart, fn map -> map.item_id == item_id end) do
       nil ->
-        IO.puts("No item in the cart with this id")
         socket
       map ->
         updated_item_in_cart = Map.update!(map, :quantity, &(&1 + increment))
