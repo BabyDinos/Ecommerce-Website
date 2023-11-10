@@ -53,7 +53,7 @@ defmodule EcommercewebsiteWeb.HomeLive do
                   <button
                     class="flex justify-center text-slate-900 text-xl text-center font-medium leading-7 self-center border-[color:var(--colour-main-blue-900,#091133)] w-[189px] max-w-full grow mt-16 pl-14 pr-14 py-3.5 rounded-sm border-2 border-solid max-md:mt-10 max-md:px-5 whitespace-nowrap"
                   >
-                    Start now!
+                    <a href="/users/register"> Start now! </a>
                   </button>
                 </div>
               </div>
