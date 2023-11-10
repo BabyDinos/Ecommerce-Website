@@ -11,7 +11,7 @@ defmodule Ecommercewebsite.MixProject do
       aliases: aliases(),
       deps: deps()
     ]
-  end
+  ende
 
   # Configuration for the OTP application.
   #
