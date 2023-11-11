@@ -12,7 +12,7 @@ defmodule EcommercewebsiteWeb.CartLive do
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.0.0/flowbite.min.css" rel="stylesheet" />
     </head>
     <body>
-      <div class = "relative w-full h-full flex justify-center bg-gray-50">
+      <div class = "relative w-full h-screen flex justify-center bg-gray-50">
 
 
 
