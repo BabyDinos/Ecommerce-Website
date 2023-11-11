@@ -18,7 +18,7 @@ The Ecommerce Website (Marcplace) is a versatile platform that empowers users to
 
 1. Create an account. You can use any email, but to see things like the confirmation email, you can use your real email. **There is absolutely no spam!** 
 2. Visit the website at [Ecommerce Website](https://ecommercewebsite.gigalixirapp.com/)
-3. Visit a featured shop page at [Marcus' Shop](https://ecommercewebsite.gigalixirapp.com/shop/Marcus_Lau) 
+3. Visit a featured shop page at [Jimmy's Shop](https://ecommercewebsite.gigalixirapp.com/shop/jimmylau) 
 
 ## What did I learn?
 
