@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+    <head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.0.0/flowbite.min.css" rel="stylesheet" />
+    </head>
+    <body>
+    <div class = "w-full h-auto flex justify-center bg-black pb-64">
+
+        <%= if @show_edit_button do %>
+            <div class="absolute justify-center items-center right-0 bg-black w-16 h-8 m-3 p-1 text-white rounded-full">
+                <span class="items-start align-top m-1 text-sm font-bold text-white dark:text-gray-300">Edit</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                <%= if @edit_mode do %>
+                    <input type="checkbox" phx-click="toggle_edit_mode" value="" class="sr-only peer" checked>
+                <% else %>
+                    <input type="checkbox" phx-click="toggle_edit_mode" value="" class="sr-only peer">
+                <% end %>
+                <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600">
+                </div>
+                </label>
+
+            </div>
+        <% end %>
+        <div class="h-auto">
+            <button class="absolute justify-center text-center items-center left-0 font-bold text-black flex m-2 p-4 min-w-24 max-w-48 h-10 rounded-full" type="button" data-drawer-backdrop="false" data-drawer-target="drawer" data-drawer-show="drawer" aria-controls="drawer">
+                <div class="relative py-2">
+                    <div class="t-0 absolute left-3">
+                        <%= if @cart_length > 0 do %>
+                        <p class="flex h-2 w-2 items-center justify-center rounded-full bg-red-500 p-3 text-xs text-white"><%= @cart_length %></p>
+                        <% end %>
+                    </div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="#ffffff" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" class="file: mt-4 h-6 w-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                </svg>
+                </div>
+            </button>
+            </div>
+        
+            <div id="drawer" class={if @drawer_opened, do: "fixed top-0 left-0 z-40 h-screen w-[30%] p-4 overflow-y-auto transtion-transform bg-white dark:bg-gray-800 border", else: "fixed top-0 left-0 z-40 h-screen w-[30%] p-4 overflow-y-auto transtion-transform -translate-x-full bg-white dark:bg-gray-800 border"} tabindex="-1" aria-labelledby="drawer-label">
+
+            <h5 id="drawer-label" class="w-full items-center inline-flex mb-4 text-base font-semibold text-gray-500 dark :text-gray-400">
+                YOUR CART
+            </h5>
+            <button phx-click="close_drawer" type="button" data-drawer-hide="drawer" aria-controls="drawer" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 right-2.5 inline-flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white" >
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+                <span class="sr-only">Close menu</span>
+            </button>
+            <div class="overflow-y-auto max-h-[80%]">
+                <%= for {cart, post} <- Enum.zip(@current_cart, @cart_posts) do %>
+                <div class="relative flex flex-row w-[90%] items-center mt-6 bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
+                    <img class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-l-lg" src={post.img_file_name}>
+                    <div class="flex flex-col justify-between p-4 leading-normal">
+                        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white break-all"><%= post.item_name %></h5>
+                        <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 break-all"><%= post.description %></p>  
+                        <div class="flex flex-row items-center gap-10">
+                            <div class="flex w-32 h-1/2">
+                                <div class="flex flex-row h-10 w-full rounded-lg relative bg-transparent">
+                                <button phx-click="adjust_cart_quantity" phx-value-item_id={cart.item_id} phx-value-increment="-1" class=" bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-l cursor-pointer outline-none">
+                                    <span class="m-auto text-2xl font-thin">−</span>
+                                </button>
+                                <h1 class="outline-none focus:outline-none text-center w-full bg-gray-300 font-semibold text-md hover:text-black focus:text-black  md:text-basecursor-default flex items-center text-gray-700 justify-center" name="custom-input-number"><%= cart.quantity %></h1>
+                                <button phx-click="adjust_cart_quantity" phx-value-item_id={cart.item_id} phx-value-increment="1" class="bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-r cursor-pointer">
+                                <span class="m-auto text-2xl font-thin">+</span>
+                                </button>
+                                </div>
+                            </div>
+                            <p class="font-normal text-gray-700 dark:text-gray-400">$<%= cart.quantity * post.price %></p>  
+                        </div>
+
+                    </div>
+                </div>
+                <% end %>
+            </div>
+
+            
+            <div class="flex absolute inset-x-0 bottom-8 justify-center items-center text-center">
+                <a href="/cart" class="w-full inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Continue to Checkout<svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+            </svg></a>
+            </div>
+        </div>
+
+        <div class = "w-4/5">
+        <div class = "w-full justify-center flex break-all" >
+            <h1 class = "w-full max-w-lg flex text-white font-semibold font-mono text-8xl justify-center items-center align-middle text-center mt-64">
+            <%= @shop_title %>
+            </h1>
+        </div>
+        <div class = "w-full flex justify-center mt-4">
+            <%= if @edit_mode do %>
+                <.form for={@shoptitle_form} phx-change="validate_shop_title" phx-submit="submit_shop_title">
+                <.input field={@shoptitle_form[:shop_title]} value={@shop_title} placeholder={@shop_title} type="text" required />
+                <div class = "justify-center w-full flex">
+                    <button class = "mt-5 p-4 text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm text-center dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800">
+                    Change Shop Title</button>
+                </div>
+                </.form>
+            <% end %>
+        </div>
+
+        <div class = "w-full justify-center flex break-all" >
+            <h2 class = "w-full max-w-6xl flex text-white font-semibold font-sans text-5xl justify-center items-center align-middle text-center mt-64">
+            <%= @shop_description %>
+            </h2>
+        </div>
+
+        <div class = "w-full flex justify-center mt-4">
+            <%= if @edit_mode do %>
+                <.form for={@shopdescription_form} phx-change="validate_shop_description" phx-submit="submit_shop_description">
+                <.input field={@shopdescription_form[:shop_description]} value={@shop_description} placeholder={@shop_description} type="text" required />
+                <div class = "justify-center w-full flex">
+                    <button class = "mt-5 p-4  text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm text-center dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800">
+                    Change Shop Description
+                    </button>
+                </div>
+                </.form>
+            <% end %>
+        </div>
+
+        </div>
+    </div>
+    <div class = "w-full h-auto flex justify-center pb-32">
+        <h1 class = "font-semibold font-mono text-8xl text-center mt-64">
+        Shop Our Collections
+        </h1>
+    </div>
+    <div class="flex relative items-end justify-end p-4">
+ 
+        <div class="relative hidden md:block mr-16 justify-start">
+
+            <form role="search" phx-submit="search">
+                <input type="text" id="search-input" value={@search_input} name="search[query]" class="block w-125 p-2 pl-5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search..." >
+            </form>
+        </div>
+
+        <div class="flex justify-end">
+            <div class="absolute inset-y-0 right-0 mr-10 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+                <span class="sr-only">Search icon</span>
+            </div>
+        </div>
+    </div>
+
+    <div class = "w-3/5 h-3/8 flex mb-16 items-start justify-center">
+        <%= if @edit_mode do %>
+        <.button phx-click={show_modal("upload-form")} class = "w-2/6 h-1/6 font-medium text-6xl">Upload New Item</.button>
+            <.modal id = "upload-form">
+            <.form for={@items_form} phx-change= "validate_new_item" phx-submit="upload_new_item"
+                class = "mt-[5%] ml-[5%] font-medium text-6xl w-3/5" enctype="multipart/form-data">
+                <.input field={@items_form[:item_name]} value = {@item_name} placeholder = {@item_name} type="text" label="Item Name" required />
+                <.input field={@items_form[:description]}  value = {@description} placeholder = {@description} type="textarea" label="Description" required />
+                <.input field={@items_form[:price]} value = {@price} placeholder = {@price} type="number" label="Price" required />
+                <.input field={@items_form[:quantity]} value = {@quantity} placeholder = {@quantity} type="number" label="Quantity" required />
+                <.live_file_input upload={@uploads.image} required class = "w-full text-xl mb-5"/>
+                <%= for entry <- @uploads.image.entries do %>
+                <.live_img_preview entry={entry} />
+                <% end %>
+                <div class = "justify-end w-full flex">
+                <button phx-click={hide_modal("upload-form")} class = "mt-5 text-2xl text-black bg-green-600 p-4 rounded-md">Submit</button>
+                </div>
+            </.form>
+            </.modal>
+        <% end %>
+    </div>
+    
+        <%= if @current_posts == 0 do %>
+            <div class="w-full h-full text-center">
+                <h1 class="text-xl font-bold">No posts right now, check back later</h1>
+            </div>
+        <% else %>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mr-8 ml-8">
+            <% posts = Enum.slice(@posts, (@page_number) * @posts_on_each_page, (@posts_on_each_page)) %>
+            <% initial_data = Enum.slice(@form_data, (@page_number) * @posts_on_each_page, (@posts_on_each_page)) %>
+            <%= for {post, form_data} <- Enum.zip(posts, initial_data) do %>
+            <div class="relative flex flex-col m-0">
+                <div class = "w-full h-full relative flex items-center justify-center border-solid border">
+                    <%= if @edit_mode do %>
+                        <h1 class="text-lg font-medium text-gray-900 absolute top-0 left-0 ml-4"> Stock: <%= post.quantity %></h1>
+                        <button phx-click={show_modal("update-form-#{post.id}")} class ="mr-14 inline-flex items-center h-10 px-5 text-indigo-100 transition-colors duration-150 bg-green-500 focus:outline-none hover:bg-green-600 absolute top-0 right-0 text-2xl rounded transform translate-x-50 -translate-y-0" >
+                            <img class="w-4 h-4" src="/images/edit.svg" alt="edit">
+                        </button>
+                        <button class ="inline-flex items-center h-10 px-5 text-indigo-100 transition-colors duration-150 bg-red-500 focus:outline-none hover:bg-red-600 absolute top-0 right-0 text-2xl rounded transform translate-x-50 -translate-y-0" phx-click="delete_post"
+                        phx-value-id={post.id} phx-value-file_path={post.img_file_name} data-confirm="Are you sure you want to delete this post?">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16"> <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/> <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/> </svg>
+                        </button>
+
+                        <.modal id={"update-form-#{post.id}"}>
+                            <.form for={@items_form} phx-change="validate_old_item" phx-submit="update_item"
+                            class = "mt-[5%] ml-[5%] font-medium text-6xl w-3/5" enctype="multipart/form-data">
+                                <.input field={@items_form[:old_img_file_name]} value = {post.img_file_name}  class="hidden"/>
+                                <.input field={@items_form[:id]} value = {post.id}  class="hidden"/>
+                                <.input field={@items_form[:item_name]} value={form_data["item_name"]} type="text" label="Item Name" />
+                                <.input field={@items_form[:description]} value={form_data["description"]} type="textarea" label="Description" />
+                                <.input field={@items_form[:price]} value={form_data["price"]} type="number" label="Price" />
+                                <.input field={@items_form[:quantity]} value={form_data["quantity"]} type="number" label="Quantity" />
+                                <.live_file_input upload={@uploads.image} class="w-full text-xl mb-5"/>
+                                <%= for entry <- @uploads.image.entries do %>
+                                <.live_img_preview entry={entry} />
+                                <% end %>
+                                <div class = "justify-end w-full flex">
+                                <button phx-click={hide_modal("update-form-#{post.id}")} class = "mt-5 text-2xl text-black bg-green-600 p-4 rounded-md">Submit</button>
+                                </div>
+                            </.form>
+                        </.modal>
+                    <% end %>
+                    <div class="w-full h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                        <section class="w-full h-full text-gray-700 body-font overflow-hidden bg-white">
+                        <div class="w-full h-full container px-5 pt-24 pb-12 mx-auto items-start">
+                            <div class="h-full lg:w-4/5 mx-auto flex flex-wrap">
+                            <div class = "flex h-3/6 max-w-full">
+                                <img src = {post.img_file_name} class = "object-contain h-full w-full rounded-t-lg p-6"/>
+                            </div>
+                            <div class="justify-between flex flex-col lg:w-1/2 w-full h-[50%] lg:pl-10 lg:py-6 mt-6 lg:mt-0">
+                                <div class="self-start">
+                                    <h2 class="text-sm title-font text-gray-500 tracking-widest"><%= @shop_title %></h2>
+                                    <h1 class="text-gray-900 text-3xl title-font font-medium mb-1"><%= post.item_name %></h1>
+                                    <p class="leading-relaxed break-all"><%= post.description %></p>
+                                </div>
+
+                                <div class="self-end flex w-full mt-6">
+                                    <span class="text-lg font-medium text-gray-900">$<%= post.price %></span>
+                                    <button phx-click="add_to_cart" phx-value-item_id={post.id} class="flex h-full ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">Add to Cart</button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            <% end %>
+        </div>
+        <% end %>
+        
+
+
+    <div class="flex flex-col items-center mt-6">
+        <!-- Help text -->
+        <span class="text-sm text-gray-700 dark:text-gray-400">
+            Showing <span class="font-semibold text-gray-900 dark:text-white"><%= (@page_number * @posts_on_each_page) + 1 %></span> to <span class="font-semibold text-gray-900 dark:text-white"><%= (@page_number * @posts_on_each_page) + @current_posts %></span> of <span class="font-semibold text-gray-900 dark:text-white"><%= @total_posts %></span> Entries
+        </span>
+        <div class="inline-flex mt-2 xs:mt-0">
+        <!-- Buttons -->
+        <button phx-click="decrease_page_number" phx-value-page_number= {@page_number} phx-value-posts_on_each_page={@posts_on_each_page} class="flex items-center justify-center px-4 h-10 text-base font-medium text-white bg-gray-800 rounded-l hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+            <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+            </svg>
+            Prev
+        </button>
+        <button phx-click="increase_page_number" phx-value-page_number={@page_number} phx-value-posts_on_each_page={@posts_on_each_page} class="flex items-center justify-center px-4 h-10 text-base font-medium text-white bg-gray-800 border-0 border-l border-gray-700 rounded-r hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+            Next
+            <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+            </svg>
+        </button>
+        </div>
+
+    <%= if @show_alert  do %>
+        <div class = "fixed top-0 right-0 z-40">
+            <div id="alert-1" class="flex items-center p-4 mb-4 text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+                <svg class="flex-shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                </svg>
+                <span class="sr-only">Info</span>
+                <div class="ml-3 text-sm font-medium">
+                <%= @alert_message %>
+                </div>
+                <button phx-click="dismiss_alert" type="button" class="ml-auto -mx-1.5 -my-1.5 bg-blue-50 text-blue-500 rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:bg-blue-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700" data-dismiss-target="#alert-1" aria-label="Close">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    <% end %>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.0.0/flowbite.min.js"></script>
+    </body>

@@ -1,0 +1,14 @@
+{
+    "tailwindCSS.includeLanguages": {
+        "html": "html",
+        "javascript": "javascript",
+        "css": "css",
+        "elixir": "html",
+        "phoenix-heex": "html" 
+    },
+    "editor.quickSuggestions": {
+        "strings": true
+    },
+    "css.validate": false,
+    "editor.inlineSuggest.enabled": true
+}
