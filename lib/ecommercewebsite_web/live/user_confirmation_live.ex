@@ -6,14 +6,12 @@ defmodule EcommercewebsiteWeb.UserConfirmationLive do
   def render(%{live_action: :edit} = assigns) do
     ~H"""
     <div class="mx-auto max-w-sm">
-      <.header class="text-center">Confirm Account</.header>
+      <.header class="text-center  mb-4">Confirm Account</.header>
 
-      <.simple_form for={@form} id="confirmation_form" phx-submit="confirm_account">
+      <.form for={@form} id="confirmation_form" phx-submit="confirm_account" class="flex justify-center">
         <.input field={@form[:token]} type="hidden" />
-        <:actions>
-          <.button phx-disable-with="Confirming..." class="w-full">Confirm my account</.button>
-        </:actions>
-      </.simple_form>
+        <.button phx-disable-with="Confirming..." class="w-full">Confirm my account</.button>
+      </.form>
 
       <p class="text-center mt-4">
         <.link href={~p"/users/register"}>Register</.link>

@@ -27,7 +27,10 @@ config :ecommercewebsite, EcommercewebsiteWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :ecommercewebsite, Ecommercewebsite.Mailer, adapter: Swoosh.Adapters.Local
+
+config :ecommercewebsite, Ecommercewebsite.Mailer,
+  adapter: Swoosh.Adapters.Sendgrid,
+  api_key: "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"
 
 # Configure esbuild (the version is required)
 config :esbuild,

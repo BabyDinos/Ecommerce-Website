@@ -107,9 +107,12 @@ defmodule EcommercewebsiteWeb.UserRegistrationLive do
         changeset = Accounts.change_user_registration(user)
         {:noreply, socket |> assign(trigger_submit: true) |> assign_register_form(changeset)}
 
-      {:error, %{user: user, user_info: _user_info}} ->
-        changeset = Accounts.change_user_registration(user)
-        {:noreply, socket |> assign(check_errors: true) |> assign_register_form(changeset)}
+      {:error, _user, _changeset, _map} ->
+        socket =
+          socket
+          |> put_flash(:error, "Email has already been taken")
+          |> redirect(to: "/users/register")
+        {:noreply, socket}
     end
   end
 
