@@ -41,6 +41,7 @@ A crucial aspect of this project was the integration of frontend and backend dev
 5. Collaboration of Frontend and Backend:
 
 The project provided an opportunity to work on both frontend and backend development concurrently, emphasizing the importance of collaboration between these two components to create a well-rounded and efficient web application.
+
 6. Holistic Development Approach:
 
 Understanding how frontend and backend components complement each other allowed me to adopt a holistic development approach, ensuring that the entire system functions cohesively to meet the project's objectives.
