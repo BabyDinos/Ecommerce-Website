@@ -8,7 +8,7 @@ defmodule Ecommercewebsite.Accounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"Ecommercewebsite", "contact@example.com"})
+      |> from({"Ecommercewebsite", "marcus@ysocool.com"})
       |> subject(subject)
       |> text_body(body)
 

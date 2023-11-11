@@ -100,11 +100,10 @@ if config_env() == :prod do
   # In production you need to configure the mailer to use a different adapter.
   # Also, you may need to configure the Swoosh API client of your choice if you
   # are not using SMTP. Here is an example of the configuration:
-  #
-  #     config :ecommercewebsite, Ecommercewebsite.Mailer,
-  #       adapter: Swoosh.Adapters.Mailgun,
-  #       api_key: System.get_env("MAILGUN_API_KEY"),
-  #       domain: System.get_env("MAILGUN_DOMAIN")
+
+    config :ecommercewebsite, Ecommercewebsite.Mailer,
+      adapter: Swoosh.Adapters.Sendgrid,
+      api_key: "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"
   #
   # For this example you need include a HTTP client required by Swoosh API client.
   # Swoosh supports Hackney and Finch out of the box:
